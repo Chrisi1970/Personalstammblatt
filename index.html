@@ -81,9 +81,9 @@ ul.docs{margin:0;padding-left:20px;display:grid;gap:4px}
 .done{color:var(--ok);font-weight:700}
 .langbox{display:grid;gap:8px;padding-bottom:16px;border-bottom:1px solid var(--line)}
 .langlabel{color:var(--muted);font-size:.85rem;letter-spacing:.03em}
-.langs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-@media (max-width:460px){.langs{grid-template-columns:1fr 1fr}}
-.lang{font:inherit;min-height:48px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.langs{display:flex;flex-wrap:wrap;gap:6px}
+.lang{font:inherit;font-size:.88rem;min-height:36px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.lang.more{border-style:dashed;color:var(--muted)}
 .lang[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
 .chan{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--soft);color:var(--accent);flex:none}
 .chan.wa{background:#e3f6ea;color:#1b8f4a}
@@ -137,7 +137,9 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
         <button type="button" class="lang" data-l="en" lang="en" aria-pressed="false">English</button>
         <button type="button" class="lang" data-l="es" lang="es" aria-pressed="false">Español</button>
         <button type="button" class="lang" data-l="ro" lang="ro" aria-pressed="false">Română</button>
+        <button type="button" class="lang more" id="langMore" aria-expanded="false">Weitere Sprachen</button>
       </div>
+      <p class="hint" id="langMoreInfo" hidden>Weitere Sprachen folgen. Falls Ihre Sprache fehlt, wählen Sie bitte die Sprache, die Sie am besten verstehen. · More languages will follow. Please choose the language you understand best.</p>
     </div>
     <h1>Willkommen bei AAAB</h1>
     <p>Mit diesem Formular erfassen wir Ihre Angaben für Lohn, Versicherungen und Steuern. Das dauert etwa 10 Minuten.</p>
@@ -511,7 +513,7 @@ function txt(el, l){ return textNodes(el).map(n => tl(n.__de ?? n.nodeValue.trim
 function setLang(l){
   lang = l; document.documentElement.lang = l;
   translate(document.body);
-  document.querySelectorAll('.lang').forEach(b => b.setAttribute('aria-pressed', b.dataset.l === l ? 'true' : 'false'));
+  document.querySelectorAll('.lang[data-l]').forEach(b => b.setAttribute('aria-pressed', b.dataset.l === l ? 'true' : 'false'));
   const tb = document.querySelector('.testbanner'); if (tb) tb.textContent = t('Testmodus. Eingaben werden nicht geprüft.');
   document.querySelectorAll('.f.bad').forEach(f => setErr(f, ''));
   numberKids(); show(cur);
@@ -949,7 +951,8 @@ form.addEventListener('change', e => { applyRules(); if (v('hat_kinder') === 'ja
 form.addEventListener('focusout', e => { const t = e.target; if (t.dataset && t.dataset.check === 'ahv') fmtAhv(t); if (t.dataset && t.dataset.check === 'iban') fmtIban(t); });
 form.addEventListener('submit', e => e.preventDefault());
 const LANGNAMES = { de:'Deutsch', en:'Englisch', es:'Spanisch', ro:'Rumänisch' };
-document.querySelectorAll('.lang').forEach(b => b.onclick = () => setLang(b.dataset.l));
+document.querySelectorAll('.lang[data-l]').forEach(b => b.onclick = () => setLang(b.dataset.l));
+$('langMore').onclick = () => { const i = $('langMoreInfo'); i.hidden = !i.hidden; $('langMore').setAttribute('aria-expanded', String(!i.hidden)); };
 prep(document.body);
 applyRules();
 let startLang = 'de';
