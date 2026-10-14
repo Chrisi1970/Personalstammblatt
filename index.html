@@ -864,6 +864,29 @@ async function fotosHochladen(){
   $('sendProg').hidden = true;
   return pfade;
 }
+/* Kurze Benachrichtigung per E-Mail an AAAB (FormSubmit). Fehler hier stoppen das Senden nicht. */
+const BENACHRICHTIGUNG_AN = 'mitarbeiter@aaab.ch';
+function benachrichtigen(){
+  try {
+    const name = (v('vorname') + ' ' + v('nachname')).trim() || 'ohne Namen';
+    const d = new Date(), pad = n => String(n).padStart(2,'0');
+    const orte = [...document.querySelectorAll('input[name=arbeitsort]:checked')].map(e => e.value).join(', ') || 'keine Angabe';
+    fetch('https://formsubmit.co/ajax/' + BENACHRICHTIGUNG_AN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: 'Neues Personalstammblatt von ' + name,
+        _template: 'table', _captcha: 'false',
+        'Name': name,
+        'Eingang': pad(d.getDate()) + '.' + pad(d.getMonth()+1) + '.' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()),
+        'Gewünschter Arbeitsort': orte,
+        'Formularsprache': LANGNAMES[lang],
+        'Noch offen': offenePunkte().join(', ') || 'nichts',
+        'Hinweis': 'Alle Angaben und Fotos in Supabase, Projekt AAAB Personalblatt Test, Tabelle einsendungen.'
+      })
+    }).catch(() => {});
+  } catch(e){}
+}
 let gesendet = false;
 $('sendBtn').onclick = async () => {
   if (gesendet) return;
@@ -880,6 +903,7 @@ $('sendBtn').onclick = async () => {
     });
     if (!res.ok) throw new Error(res.status);
     gesendet = true; $('sendDone').hidden = false; btn.textContent = t('Gesendet');
+    benachrichtigen();
   } catch(e){
     $('sendProg').hidden = true; $('sendErr').textContent = window.claude ? t('In dieser Vorschau ist Senden gesperrt. Bitte öffnen Sie das Formular über den Link chrisi1970.github.io/Personalstammblatt.') : t('Das Senden hat nicht geklappt. Laden Sie das PDF herunter und schicken Sie es per E-Mail an AAAB.'); $('sendErr').hidden = false; btn.disabled = false; btn.textContent = t('SENDEN');
   }
