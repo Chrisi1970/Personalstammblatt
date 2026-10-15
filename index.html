@@ -956,6 +956,7 @@ function show(i){
   $('bar').style.width = (i / last * 100) + '%';
   $('stepinfo').textContent = i === 0 ? t('Start') : i === last ? t('Abschluss') : t('Schritt {a} von {b}').replace('{a}', i).replace('{b}', last - 1) + ' · ' + t(steps[i].dataset.title);
   document.querySelector('.nav').hidden = i === 0;
+  document.querySelector('footer').hidden = !(i === 0 || i === last);
   $('back').hidden = i === 0;
   $('next').textContent = i === 0 ? t('Los geht’s') : returnTo !== null ? t('Zurück zur Übersicht') : i === last - 1 ? t('Zur Kontrolle') : t('Weiter');
   $('next').hidden = i === last;
