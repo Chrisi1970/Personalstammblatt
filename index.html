@@ -70,6 +70,7 @@ input:focus,select:focus,button:focus-visible,.opt input:focus-visible+span{outl
 .nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
 .nav .in{max-width:640px;margin:0 auto;display:flex;gap:12px;justify-content:space-between}
 .nav .btn{flex:1}
+.startbtn{width:100%;margin-top:20px}
 dl.sum{margin:0;display:grid;gap:4px}
 .sum h3{margin:14px 0 4px;font-size:1rem;color:var(--accent)}
 .sum div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
@@ -153,12 +154,13 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
         <li>AHV-Ausweis oder Krankenkassenkarte</li>
       </ul>
     </div>
-    <p class="hint">Felder mit * sind Pflicht.</p>
+    <button type="button" class="btn startbtn" id="start">Los geht’s</button>
   </section>
 
   <!-- 1 Person -->
   <section class="step" data-title="Persönliche Angaben" hidden>
     <h1>Persönliche Angaben</h1>
+    <p class="hint">Felder mit * sind Pflicht.</p>
     <div class="row">
       <div class="f"><label class="req" for="vorname">Vorname</label><input type="text" id="vorname" name="vorname" required autocomplete="given-name"></div>
       <div class="f"><label class="req" for="nachname">Nachname</label><input type="text" id="nachname" name="nachname" required autocomplete="family-name"></div>
@@ -953,6 +955,7 @@ function show(i){
   const last = steps.length - 1;
   $('bar').style.width = (i / last * 100) + '%';
   $('stepinfo').textContent = i === 0 ? t('Start') : i === last ? t('Abschluss') : t('Schritt {a} von {b}').replace('{a}', i).replace('{b}', last - 1) + ' · ' + t(steps[i].dataset.title);
+  document.querySelector('.nav').hidden = i === 0;
   $('back').hidden = i === 0;
   $('next').textContent = i === 0 ? t('Los geht’s') : returnTo !== null ? t('Zurück zur Übersicht') : i === last - 1 ? t('Zur Kontrolle') : t('Weiter');
   $('next').hidden = i === last;
@@ -966,6 +969,7 @@ $('next').onclick = () => {
   show(cur + 1);
 };
 if (TESTMODUS) { const b = document.createElement('p'); b.className = 'testbanner notr'; b.textContent = 'Testmodus. Eingaben werden nicht geprüft.'; document.querySelector('.wrap').insertBefore(b, document.querySelector('.progress')); }
+$('start').onclick = () => show(1);
 $('back').onclick = () => { returnTo = null; show(Math.max(0, cur - 1)); };
 form.addEventListener('input', e => {
   applyRules();
