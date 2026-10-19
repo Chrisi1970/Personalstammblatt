@@ -774,7 +774,7 @@ function makePdf(){
   doc.text('Erfasst in Lohnsystem am  ______________', M + 95, y + 22);
   doc.text('Visum  ______________', M + 3, y + 30);
   footer();
-  const name = ('Personalstammblatt_' + v('nachname') + '_' + v('vorname')).replace(/[^\wäöüÄÖÜ-]+/g,'_') + '.pdf';
+  const name = ('Personalstammblatt_' + v('nachname') + '_' + v('vorname')).replace(/[äöüÄÖÜ]/g, c => ({ä:'ae',ö:'oe',ü:'ue',Ä:'Ae',Ö:'Oe',Ü:'Ue'})[c]).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w-]+/g,'_') + '.pdf';
   return { doc, name };
 }
 function asText(){
