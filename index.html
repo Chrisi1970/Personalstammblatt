@@ -202,13 +202,10 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
   <!-- 2 Herkunft -->
   <section class="step" data-title="Herkunft und Bewilligung" hidden>
     <h1>Herkunft und Bewilligung</h1>
-    <fieldset class="f"><legend class="req">Nationalität</legend><div class="opts">
-      <label class="opt"><input type="radio" name="nat_typ" value="Schweiz" required><span>Schweiz</span></label>
-      <label class="opt"><input type="radio" name="nat_typ" value="andere"><span>andere</span></label>
-    </div></fieldset>
+    <div class="f"><label class="req" for="nat_land">Nationalität</label>
+      <select id="nat_land" name="nat_land" class="notr" data-countries required></select></div>
     <div class="f" data-if="natCH" hidden><label class="req" for="buergerort">Bürgerort</label><input type="text" id="buergerort" name="buergerort" required></div>
     <div class="sub" data-if="natAndere" hidden>
-      <div class="f"><label class="req" for="nationalitaet">Welches Land?</label><input type="text" id="nationalitaet" name="nationalitaet" required></div>
       <fieldset class="f"><legend class="req">Aufenthaltsbewilligung</legend><div class="opts">
         <label class="opt"><input type="radio" name="bewilligung" value="B" required><span>B</span></label>
         <label class="opt"><input type="radio" name="bewilligung" value="C"><span>C</span></label>
@@ -519,6 +516,7 @@ function setLang(l){
   document.querySelectorAll('.lang[data-l]').forEach(b => b.setAttribute('aria-pressed', b.dataset.l === l ? 'true' : 'false'));
   const tb = document.querySelector('.testbanner'); if (tb) tb.textContent = t('Testmodus. Eingaben werden nicht geprüft.');
   document.querySelectorAll('.f.bad').forEach(f => setErr(f, ''));
+  fillCountries();
   numberKids(); show(cur);
   try { localStorage.setItem('aaab_lang', l); } catch(e){}
 }
@@ -530,12 +528,12 @@ const v = n => { const el = form.elements[n]; if (!el) return ''; return (el.val
 
 /* ---------- Bedingungen ---------- */
 const rules = {
-  natCH: () => v('nat_typ') === 'Schweiz',
-  natAndere: () => v('nat_typ') === 'andere',
-  bewAndere: () => v('nat_typ') === 'andere' && v('bewilligung') === 'andere',
-  bewG: () => v('nat_typ') === 'andere' && v('bewilligung') === 'G',
-  bewAblauf: () => v('nat_typ') === 'andere' && v('bewilligung') && v('bewilligung') !== 'noch keine',
-  bewKeine: () => v('nat_typ') === 'andere' && v('bewilligung') === 'noch keine',
+  natCH: () => v('nat_land') === 'CH',
+  natAndere: () => !!v('nat_land') && v('nat_land') !== 'CH',
+  bewAndere: () => rules.natAndere() && v('bewilligung') === 'andere',
+  bewG: () => rules.natAndere() && v('bewilligung') === 'G',
+  bewAblauf: () => rules.natAndere() && v('bewilligung') && v('bewilligung') !== 'noch keine',
+  bewKeine: () => rules.natAndere() && v('bewilligung') === 'noch keine',
   ahv: () => v('ahv_vorhanden') === 'ja',
   ahvNein: () => v('ahv_vorhanden') === 'Nein, noch nicht',
   pAhv: () => v('p_ahv_vorhanden') === 'ja',
@@ -554,7 +552,7 @@ const rules = {
   kinder: () => v('hat_kinder') === 'ja',
   kz: () => v('kz') === 'ja',
   nebenjob: () => v('nebenjob') === 'ja',
-  qst: () => v('nat_typ') === 'andere' && v('bewilligung') !== 'C',
+  qst: () => rules.natAndere() && v('bewilligung') !== 'C',
   mutterAndere: () => v('muttersprache') === 'andere',
   sprachenAndere: () => !!document.querySelector('input[name=sprachen][value=andere]:checked'),
   kirche: () => ['evangelisch-reformiert','römisch-katholisch','christkatholisch'].includes(v('religion')),
@@ -647,6 +645,7 @@ function valueOf(f, L){
   if (radios.length) return [...radios].filter(r => r.checked).map(r => tl({ja:'Ja', nein:'Nein'}[r.value] || r.value, L)).join(', ');
   const el = f.querySelector('input,select'); if (!el) return '';
   if (el.type === 'checkbox') return '';
+  if (el.tagName === 'SELECT' && el.dataset.countries !== undefined) return el.value ? landName(el.value, L) : '';
   if (el.tagName === 'SELECT') return tl(el.value, L);
   if (el.type === 'date' && el.value){ const [y,m,d] = el.value.split('-'); return d + '.' + m + '.' + y; }
   return el.value.trim();
@@ -946,6 +945,27 @@ $('waNr').textContent = WHATSAPP_NUMMER;
 $('waLink').href = 'https://wa.me/' + WHATSAPP_NUMMER.replace(/\D/g,'');
 $('copyWa').onclick = e => copy(WHATSAPP_NUMMER, e.currentTarget);
 $('copyText').onclick = e => copy(asText(), e.currentTarget);
+
+
+/* ---------- Länderliste ---------- */
+const LAND_OBEN = ['CH','DE','FR','ES','IT','RO'];
+const LAND_ALLE = 'AF AL DZ AD AO AG AR AM AU AT AZ BS BH BD BB BY BE BZ BJ BT BO BA BW BR BN BG BF BI CV KH CM CA CF TD CL CN CO KM CG CD CR CI HR CU CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FJ FI GA GM GE GH GR GD GT GN GW GY HT HN HK HU IS IN ID IR IQ IE IL JM JP JO KZ KE KI XK KW KG LA LV LB LS LR LY LI LT LU MG MW MY MV ML MT MH MR MU MX FM MD MC MN ME MA MZ MM NA NR NP NL NZ NI NE NG KP MK NO OM PK PW PS PA PG PY PE PH PL PT QA KR RU RW KN LC VC WS SM ST SA SN RS SC SL SG SK SI SB SO ZA SS LK SD SR SE SY TW TJ TZ TH TL TG TO TT TN TR TM TV UG UA AE GB US UY UZ VU VA VE VN YE ZM ZW'.split(' ');
+function landName(code, l){
+  try { return new Intl.DisplayNames([l], {type:'region'}).of(code); } catch(e){ return code; }
+}
+function fillCountries(){
+  document.querySelectorAll('select[data-countries]').forEach(sel => {
+    const val = sel.value;
+    sel.innerHTML = '';
+    const add = (value, text, dis) => { const o = document.createElement('option'); o.value = value; o.textContent = text; if (dis) o.disabled = true; sel.appendChild(o); };
+    add('', t('Bitte wählen'));
+    LAND_OBEN.forEach(c => add(c, landName(c, lang)));
+    add('', '──────────', true);
+    LAND_ALLE.filter(c => !LAND_OBEN.includes(c)).map(c => [c, landName(c, lang)]).sort((a,b) => a[1].localeCompare(b[1], lang)).forEach(([c,n]) => add(c, n));
+    sel.value = val;
+  });
+}
+fillCountries();
 
 /* ---------- Navigation ---------- */
 let returnTo = null;
