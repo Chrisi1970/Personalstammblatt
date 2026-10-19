@@ -536,7 +536,7 @@ const v = n => { const el = form.elements[n]; if (!el) return ''; return (el.val
 const rules = {
   natCH: () => v('nat_land') === 'CH',
   natAndere: () => !!v('nat_land') && v('nat_land') !== 'CH',
-  bewG: () => rules.natAndere() && v('bewilligung') === 'G',
+  bewG: () => v('nat_land') === 'IT',
   bewAblauf: () => rules.natAndere() && v('bewilligung') && v('bewilligung') !== 'noch keine',
   bewKeine: () => rules.natAndere() && v('bewilligung') === 'noch keine',
   ahv: () => v('ahv_vorhanden') === 'ja',
