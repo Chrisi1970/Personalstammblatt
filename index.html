@@ -80,6 +80,17 @@ ul.docs{margin:0;padding-left:20px;display:grid;gap:4px}
 .mail{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .mail code{font-family:inherit;font-weight:700;font-size:1.05rem}
 .done{color:var(--ok);font-weight:700}
+#langPick{display:grid;gap:16px}
+.pickhead{text-align:center;color:var(--blue,#1f5fae);display:grid;justify-items:center;gap:6px}
+.pickhead h1{margin:0;color:var(--fg)}
+.pickhead p{margin:0;font-size:.85rem;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lang.tile{min-height:60px;border-radius:12px;font-size:1.1rem;font-weight:600;border:2px solid var(--line)}
+.lang.tile[aria-pressed=true]{border-color:#1f5fae}
+.langchip{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:.95rem;padding:8px 14px;border-radius:999px;border:2px solid #1f5fae;background:var(--bg);color:#1f5fae;cursor:pointer;justify-self:start;margin-bottom:6px}
+.langchip .chev{font-size:.8rem}
+#welcome{display:grid;gap:18px}
+#welcome[hidden],#langPick[hidden]{display:none}
 .langbox{display:grid;gap:8px;padding-bottom:16px;border-bottom:1px solid var(--line)}
 .langlabel{color:var(--muted);font-size:.85rem;letter-spacing:.03em}
 .langs{display:flex;flex-wrap:wrap;gap:6px}
@@ -134,25 +145,25 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
 
   <!-- 0 Start -->
   <section class="step" data-title="Willkommen">
-    <div class="langbox notr">
-      <span class="langlabel">Sprache · Language · Idioma · Langue · Limba</span>
-      <div class="langs" role="group" aria-label="Sprache · Language · Idioma · Langue · Limba">
-        <button type="button" class="lang" data-l="de" lang="de" aria-pressed="true">Deutsch</button>
-        <button type="button" class="lang" data-l="en" lang="en" aria-pressed="false">English</button>
-        <button type="button" class="lang" data-l="es" lang="es" aria-pressed="false">Español</button>
-        <button type="button" class="lang" data-l="fr" lang="fr" aria-pressed="false">Français</button>
-        <button type="button" class="lang" data-l="ro" lang="ro" aria-pressed="false">Română</button>
-        <button type="button" class="lang more" id="langMore" aria-expanded="false">Weitere Sprachen</button>
+    <div id="langPick" class="notr">
+      <div class="pickhead"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9s1.3-6.4 3.8-9z"/></svg>
+        <h1>Sprache wählen</h1>
+        <p>Choose language · Elige idioma · Choisir la langue · Alege limba · Zgjidhni gjuhën · Scegliere la lingua · Escolher a língua</p>
       </div>
-      <div id="langMoreRow" hidden>
-        <div class="langs" role="group" aria-label="Weitere Sprachen">
-          <button type="button" class="lang" data-l="sq" lang="sq" aria-pressed="false">Shqip</button>
-          <button type="button" class="lang" data-l="it" lang="it" aria-pressed="false">Italiano</button>
-          <button type="button" class="lang" data-l="pt" lang="pt" aria-pressed="false">Português</button>
-        </div>
-        <p class="hint" id="langMoreInfo">Falls Ihre Sprache fehlt, wählen Sie bitte die Sprache, die Sie am besten verstehen. · If your language is missing, please choose the language you understand best.</p>
+      <div class="tiles" role="group" aria-label="Sprache wählen">
+        <button type="button" class="lang tile" data-l="de" lang="de" aria-pressed="false">Deutsch</button>
+        <button type="button" class="lang tile" data-l="en" lang="en" aria-pressed="false">English</button>
+        <button type="button" class="lang tile" data-l="es" lang="es" aria-pressed="false">Español</button>
+        <button type="button" class="lang tile" data-l="fr" lang="fr" aria-pressed="false">Français</button>
+        <button type="button" class="lang tile" data-l="ro" lang="ro" aria-pressed="false">Română</button>
+        <button type="button" class="lang tile" data-l="sq" lang="sq" aria-pressed="false">Shqip</button>
+        <button type="button" class="lang tile" data-l="it" lang="it" aria-pressed="false">Italiano</button>
+        <button type="button" class="lang tile" data-l="pt" lang="pt" aria-pressed="false">Português</button>
       </div>
+      <p class="hint" style="text-align:center">Falls Ihre Sprache fehlt, wählen Sie bitte die Sprache, die Sie am besten verstehen. · If your language is missing, please choose the language you understand best.</p>
     </div>
+    <div id="welcome" hidden>
+    <button type="button" class="langchip notr" id="langChange"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9s1.3-6.4 3.8-9z"/></svg><span id="langNow">Deutsch</span><span class="chev">▾</span></button>
     <h1>Willkommen bei AAAB</h1>
     <p>Mit diesem Formular erfassen wir Ihre Angaben für Lohn, Versicherungen und Steuern. Das dauert etwa 10 Minuten.</p>
     <div class="box">
@@ -165,6 +176,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
       </ul>
     </div>
     <button type="button" class="btn startbtn" id="start">Los geht’s</button>
+    </div>
   </section>
 
   <!-- 1 Person -->
@@ -527,8 +539,7 @@ function setLang(l){
   lang = l; document.documentElement.lang = l;
   translate(document.body);
   document.querySelectorAll('.lang[data-l]').forEach(b => b.setAttribute('aria-pressed', b.dataset.l === l ? 'true' : 'false'));
-  if (typeof EXTRA_LANGS !== 'undefined' && EXTRA_LANGS.includes(l)) moreRow(true);
-  $('langMore').classList.toggle('on', typeof EXTRA_LANGS !== 'undefined' && EXTRA_LANGS.includes(l));
+  if ($('langNow')) $('langNow').textContent = (document.querySelector('.lang.tile[data-l="' + l + '"]') || {}).textContent || l;
   const tb = document.querySelector('.testbanner'); if (tb) tb.textContent = t('Testmodus. Eingaben werden nicht geprüft.');
   document.querySelectorAll('.f.bad').forEach(f => setErr(f, ''));
   fillCountries(); fillLanguages();
@@ -1104,9 +1115,9 @@ form.addEventListener('focusout', e => { const t = e.target; if (t.dataset && t.
 form.addEventListener('submit', e => e.preventDefault());
 const LANGNAMES = { de:'Deutsch', en:'Englisch', es:'Spanisch', fr:'Französisch', ro:'Rumänisch', sq:'Albanisch', it:'Italienisch', pt:'Portugiesisch' };
 const EXTRA_LANGS = ['sq','it','pt'];
-document.querySelectorAll('.lang[data-l]').forEach(b => b.onclick = () => setLang(b.dataset.l));
-function moreRow(open){ $('langMoreRow').hidden = !open; $('langMore').setAttribute('aria-expanded', String(open)); }
-$('langMore').onclick = () => moreRow($('langMoreRow').hidden);
+document.querySelectorAll('.lang[data-l]').forEach(b => b.onclick = () => { setLang(b.dataset.l); pickPhase(false); });
+function pickPhase(on){ $('langPick').hidden = !on; $('welcome').hidden = on; window.scrollTo({top:0}); }
+$('langChange').onclick = () => pickPhase(true);
 prep(document.body);
 applyRules();
 let startLang = 'de';
