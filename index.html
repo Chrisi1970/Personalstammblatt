@@ -256,7 +256,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
       <p class="hint" data-if="bewKeine" hidden>Schicken Sie uns die Bewilligung bitte, sobald Sie sie erhalten haben.</p>
       <div class="f" data-if="bewG" hidden><label for="it_steuer">Italienische Steuernummer (Codice fiscale)</label><input type="text" id="it_steuer" name="it_steuer" autocapitalize="characters"><span class="hint">Für Grenzgängerinnen und Grenzgänger aus Italien.</span></div>
     </div>
-    <div class="f"><label class="req" for="ausweis_ablauf">Ablaufdatum ID oder Pass</label><input type="date" id="ausweis_ablauf" name="ausweis_ablauf" required></div>
+    <div class="f" data-if="ausweisAblauf"><label class="req" for="ausweis_ablauf">Ablaufdatum ID oder Pass</label><input type="date" id="ausweis_ablauf" name="ausweis_ablauf" required></div>
     <fieldset class="f"><legend class="req">Haben Sie eine AHV-Nummer?</legend><div class="opts">
       <label class="opt"><input type="radio" name="ahv_vorhanden" value="ja" required><span>Ja</span></label>
       <label class="opt"><input type="radio" name="ahv_vorhanden" value="Nein, noch nicht"><span>Nein, noch nicht</span></label>
@@ -571,6 +571,7 @@ const rules = {
   natCH: () => v('nat_land') === 'CH',
   natAndere: () => !!v('nat_land') && v('nat_land') !== 'CH',
   bewG: () => v('nat_land') === 'IT',
+  ausweisAblauf: () => !(rules.natAndere() && ['B','C'].includes(v('bewilligung'))),
   bewAblauf: () => rules.natAndere() && v('bewilligung') && v('bewilligung') !== 'noch keine',
   bewKeine: () => rules.natAndere() && v('bewilligung') === 'noch keine',
   ahv: () => v('ahv_vorhanden') === 'ja',
