@@ -1139,7 +1139,7 @@ let startLang = 'de';
 try { const s = localStorage.getItem('aaab_lang'); if (s && LANGNAMES[s]) startLang = s; } catch(e){}
 let urlLang = null;
 try { urlLang = new URLSearchParams(location.search).get('lang'); } catch(e){}
-if (urlLang && LANGNAMES[urlLang]) { setLang(urlLang); pickPhase(false); } else setLang(startLang);
+setLang(urlLang && LANGNAMES[urlLang] ? urlLang : startLang);
 </script>
 
 </body>
