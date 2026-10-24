@@ -38,6 +38,10 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .dec button{font:inherit;font-weight:700;font-size:.95rem;min-height:64px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;padding:6px}
 .dec button[data-v="Einstellen"][aria-pressed=true]{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-b)}
 .dec button[data-v="Nicht einstellen"][aria-pressed=true]{background:var(--no-bg);color:var(--no);border-color:var(--no-b)}
+.absage{display:grid;gap:14px;padding:14px;border-radius:12px;background:var(--no-bg);border:1.5px solid var(--no-b)}
+.absage .lab,.absage label,.absage .hint{color:var(--no)}
+.absage textarea,.absage .chip{background:var(--card)}
+.absage .chip[aria-pressed=true]{background:var(--no-b);border-color:var(--no-b);color:#fff}
 .crit{display:grid;gap:6px;padding-bottom:10px;border-bottom:1px solid var(--line)}
 .crit:last-child{border-bottom:0;padding-bottom:0}
 .scale{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
@@ -83,6 +87,13 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:16px}
         <button type="button" data-v="Einstellen">Einstellen</button>
         <button type="button" data-v="Nicht einstellen">Nicht einstellen</button>
       </div></div>
+    <div class="absage" id="absage" hidden>
+      <div class="f" id="f_gruende"><span class="lab req">Gründe für die Absage</span>
+        <span class="hint">Mehrere Antworten möglich. Diese Angaben sind für das HR. Die Person sieht sie nicht.</span>
+        <div class="chips" id="gruende"><button type="button" class="chip">Unpünktlich</button><button type="button" class="chip">Arbeitstempo zu langsam</button><button type="button" class="chip">Qualität der Arbeit ungenügend</button><button type="button" class="chip">Hygiene oder Sorgfalt mangelhaft</button><button type="button" class="chip">Auftreten oder Umgangsformen</button><button type="button" class="chip">Verständigung oder Sprache</button><button type="button" class="chip">Teamarbeit</button><button type="button" class="chip">Person möchte selbst nicht</button><button type="button" class="chip">Anderer Grund</button></div></div>
+      <div class="f" id="f_begr"><label class="req" for="begruendung">Begründung in eigenen Worten</label>
+        <textarea id="begruendung" placeholder="z. B. Zimmer nach 60 Minuten nicht fertig, Bad nicht sauber"></textarea></div>
+    </div>
 
     <div class="f"><span class="lab">Bewertung</span>
       <div id="crits" style="display:grid;gap:10px"></div></div>
@@ -2426,9 +2437,29 @@ document.querySelectorAll('[data-group]').forEach(g => g.addEventListener('click
   wahl[g.dataset.group] = b.dataset.v || b.textContent.trim();
   const f = g.closest('.f'); if (f) f.classList.remove('bad');
 }));
+const gruende = new Set();
+$('gruende').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const v = b.textContent.trim(); if (gruende.has(v)) gruende.delete(v); else gruende.add(v); b.setAttribute('aria-pressed', gruende.has(v) ? 'true' : 'false'); $('f_gruende').classList.remove('bad'); });
+function absageAnzeigen(){ $('absage').hidden = wahl.entscheid !== 'Nicht einstellen'; }
+document.querySelector('[data-group=entscheid]').addEventListener('click', absageAnzeigen);
+$('begruendung').addEventListener('input', () => $('f_begr').classList.remove('bad'));
+/* Vorausfuellen aus dem Link: ?name=Ana%20Vaquez&datum=2026-10-26&objekt=...&standort=... */
+try {
+  const q = new URLSearchParams(location.search);
+  const name = (q.get('name') || '').trim();
+  if (name){ const t = name.split(/\s+/); $('vorname').value = t.shift(); $('nachname').value = t.join(' '); }
+  if (q.get('vorname')) $('vorname').value = q.get('vorname');
+  if (q.get('nachname')) $('nachname').value = q.get('nachname');
+  const d = (q.get('datum') || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(d)) $('datum').dataset.vor = d;
+  else if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(d)){ const [dd,mm,yy] = d.split('.'); $('datum').dataset.vor = yy + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0'); }
+  if (q.get('objekt')) $('objekt').value = q.get('objekt');
+  const st = q.get('standort');
+  if (st) document.querySelectorAll('[data-group=standort] button').forEach(b => { if (b.textContent.trim().toLowerCase() === st.toLowerCase()) b.click(); });
+} catch(e){}
 
 const heute = new Date(); const pad = n => String(n).padStart(2,'0');
 $('datum').value = heute.getFullYear() + '-' + pad(heute.getMonth()+1) + '-' + pad(heute.getDate());
+if ($('datum').dataset.vor) $('datum').value = $('datum').dataset.vor;
 try { const g = localStorage.getItem('aaab_gouvernante'); if (g) $('gouvernante').value = g; } catch(e){}
 document.querySelectorAll('input').forEach(i => i.addEventListener('input', () => i.closest('.f').classList.remove('bad')));
 
@@ -2438,6 +2469,10 @@ function pruefen(){
   let ok = true;
   ['vorname','nachname','datum','gouvernante','objekt'].forEach(id => { const bad = !$(id).value.trim(); $(id).closest('.f').classList.toggle('bad', bad); if (bad) ok = false; });
   [['standort','f_standort'],['entscheid','f_entscheid']].forEach(([g,f]) => { const bad = !wahl[g]; $(f).classList.toggle('bad', bad); if (bad) ok = false; });
+  if (wahl.entscheid === 'Nicht einstellen'){
+    if (!gruende.size){ $('f_gruende').classList.add('bad'); ok = false; } else $('f_gruende').classList.remove('bad');
+    const bad = $('begruendung').value.trim().length < 5; $('f_begr').classList.toggle('bad', bad); if (bad) ok = false;
+  }
   return ok;
 }
 
@@ -2448,6 +2483,7 @@ $('form').addEventListener('submit', async e => {
   const bewerber = ($('vorname').value.trim() + ' ' + $('nachname').value.trim());
   const bewertung = {}; KRITERIEN.forEach((k,i) => bewertung[k] = wahl['k'+i] || 'keine Angabe');
   const angaben = { 'Bewerber/in': bewerber, 'Datum Probetag': datumCH($('datum').value), 'Gouvernante': $('gouvernante').value.trim(), 'Standort': wahl.standort, 'Hotel oder Objekt': $('objekt').value.trim(), 'Entscheid': wahl.entscheid, 'Bewertung': bewertung, 'Zeit im Probezimmer': $('zeit').value.trim(), 'Bemerkung': $('bemerkung').value.trim() };
+  if (wahl.entscheid === 'Nicht einstellen'){ angaben['Gründe Absage'] = [...gruende].join(', '); angaben['Begründung'] = $('begruendung').value.trim(); }
   const btn = $('sendBtn'); btn.disabled = true; btn.textContent = 'Wird gesendet …';
   try {
     const res = await fetch(SUPABASE_URL + '/rest/v1/probetage', { method:'POST', headers:{ 'apikey': SUPABASE_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
@@ -2458,6 +2494,7 @@ $('form').addEventListener('submit', async e => {
       'Entscheid': angaben['Entscheid'], 'Bewerber/in': bewerber, 'Datum Probetag': angaben['Datum Probetag'], 'Standort': angaben['Standort'], 'Hotel oder Objekt': angaben['Hotel oder Objekt'], 'Gouvernante': angaben['Gouvernante'] };
     KRITERIEN.forEach(k => mail[k] = bewertung[k]);
     mail['Zeit im Probezimmer'] = angaben['Zeit im Probezimmer'] || 'keine Angabe';
+    if (angaben['Gründe Absage']){ mail['Gründe Absage'] = angaben['Gründe Absage']; mail['Begründung'] = angaben['Begründung']; }
     mail['Bemerkung'] = angaben['Bemerkung'] || 'keine';
     if (angaben['Entscheid'] === 'Einstellen') mail['Nächster Schritt'] = 'Link zum Personalstammblatt an die Person schicken: ' + LINK_PERSONALBLATT;
     fetch('https://formsubmit.co/ajax/' + MELDEN_AN, { method:'POST', headers:{ 'Content-Type':'application/json', 'Accept':'application/json' }, body: JSON.stringify(mail) }).catch(() => {});
@@ -2472,7 +2509,8 @@ $('form').addEventListener('submit', async e => {
 });
 
 $('again').onclick = () => {
-  ['vorname','nachname','objekt','zeit','bemerkung'].forEach(id => $(id).value = '');
+  ['vorname','nachname','objekt','zeit','bemerkung','begruendung'].forEach(id => $(id).value = '');
+  gruende.clear(); document.querySelectorAll('#gruende button').forEach(b => b.setAttribute('aria-pressed','false')); $('absage').hidden = true;
   document.querySelectorAll('[data-group]').forEach(g => { if (g.dataset.group !== 'standort') { g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed','false')); delete wahl[g.dataset.group]; } });
   $('done').hidden = true; $('form').hidden = false; window.scrollTo({top:0});
 };
