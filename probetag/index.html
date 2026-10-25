@@ -98,8 +98,8 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:16px}
     <div class="f" id="f_bewertung"><span class="lab">Bewertung</span>
       <div id="crits" style="display:grid;gap:10px"></div></div>
 
-    <div class="f"><label for="zeit">Zeit im Probezimmer</label><input id="zeit" placeholder="z. B. 35 Minuten"></div>
-    <div class="f"><label for="bemerkung">Bemerkung</label><textarea id="bemerkung" placeholder="Freiwillig"></textarea></div>
+    <div class="f" id="f_zeit"><label for="zeit">Zeit im Probezimmer</label><input id="zeit" placeholder="z. B. 35 Minuten"></div>
+    <div class="f" id="f_bem"><label for="bemerkung">Bemerkung</label><textarea id="bemerkung" placeholder="Freiwillig"></textarea></div>
 
     <p class="err" id="formErr" hidden>Bitte füllen Sie die rot markierten Felder aus.</p>
     <p class="err" id="sendErr" hidden>Das Senden hat nicht geklappt. Bitte prüfen Sie die Internetverbindung und tippen Sie nochmals auf Senden.</p>
@@ -2439,7 +2439,7 @@ document.querySelectorAll('[data-group]').forEach(g => g.addEventListener('click
 }));
 const gruende = new Set();
 $('gruende').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const v = b.textContent.trim(); if (gruende.has(v)) gruende.delete(v); else gruende.add(v); b.setAttribute('aria-pressed', gruende.has(v) ? 'true' : 'false'); $('f_gruende').classList.remove('bad'); });
-function absageAnzeigen(){ const nein = wahl.entscheid === 'Nicht einstellen'; $('absage').hidden = !nein; $('f_bewertung').hidden = nein; }
+function absageAnzeigen(){ const nein = wahl.entscheid === 'Nicht einstellen'; $('absage').hidden = !nein; $('f_bewertung').hidden = nein; $('f_zeit').hidden = nein; $('f_bem').hidden = nein; }
 document.querySelector('[data-group=entscheid]').addEventListener('click', absageAnzeigen);
 $('begruendung').addEventListener('input', () => $('f_begr').classList.remove('bad'));
 /* Vorausfuellen aus dem Link: ?name=Ana%20Vaquez&datum=2026-10-26&objekt=...&standort=... */
@@ -2482,7 +2482,7 @@ $('form').addEventListener('submit', async e => {
   if (!pruefen()){ $('formErr').hidden = false; const f = document.querySelector('.bad'); if (f) f.scrollIntoView({behavior:'smooth', block:'center'}); return; }
   const bewerber = ($('vorname').value.trim() + ' ' + $('nachname').value.trim());
   const bewertung = {}; if (wahl.entscheid !== 'Nicht einstellen') KRITERIEN.forEach((k,i) => bewertung[k] = wahl['k'+i] || 'keine Angabe');
-  const angaben = { 'Bewerber/in': bewerber, 'Datum Probetag': datumCH($('datum').value), 'Gouvernante': $('gouvernante').value.trim(), 'Standort': wahl.standort, 'Hotel oder Objekt': $('objekt').value.trim(), 'Entscheid': wahl.entscheid, 'Bewertung': bewertung, 'Zeit im Probezimmer': $('zeit').value.trim(), 'Bemerkung': $('bemerkung').value.trim() };
+  const angaben = { 'Bewerber/in': bewerber, 'Datum Probetag': datumCH($('datum').value), 'Gouvernante': $('gouvernante').value.trim(), 'Standort': wahl.standort, 'Hotel oder Objekt': $('objekt').value.trim(), 'Entscheid': wahl.entscheid, 'Bewertung': bewertung, 'Zeit im Probezimmer': wahl.entscheid === 'Nicht einstellen' ? '' : $('zeit').value.trim(), 'Bemerkung': wahl.entscheid === 'Nicht einstellen' ? '' : $('bemerkung').value.trim() };
   if (wahl.entscheid === 'Nicht einstellen'){ angaben['Gründe Absage'] = [...gruende].join(', '); angaben['Begründung'] = $('begruendung').value.trim(); }
   const btn = $('sendBtn'); btn.disabled = true; btn.textContent = 'Wird gesendet …';
   try {
@@ -2510,7 +2510,7 @@ $('form').addEventListener('submit', async e => {
 
 $('again').onclick = () => {
   ['vorname','nachname','objekt','zeit','bemerkung','begruendung'].forEach(id => $(id).value = '');
-  gruende.clear(); document.querySelectorAll('#gruende button').forEach(b => b.setAttribute('aria-pressed','false')); $('absage').hidden = true; $('f_bewertung').hidden = false;
+  gruende.clear(); document.querySelectorAll('#gruende button').forEach(b => b.setAttribute('aria-pressed','false')); $('absage').hidden = true; $('f_bewertung').hidden = false; $('f_zeit').hidden = false; $('f_bem').hidden = false;
   document.querySelectorAll('[data-group]').forEach(g => { if (g.dataset.group !== 'standort') { g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed','false')); delete wahl[g.dataset.group]; } });
   $('done').hidden = true; $('form').hidden = false; window.scrollTo({top:0});
 };
