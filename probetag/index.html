@@ -99,7 +99,10 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:16px}
       <div id="crits" style="display:grid;gap:10px"></div></div>
 
     <div class="f" id="f_zeit"><label for="zeit">Zeit im Probezimmer</label><input id="zeit" placeholder="z. B. 35 Minuten"></div>
-    <div class="f" id="f_bem"><label for="bemerkung">Bemerkung</label><textarea id="bemerkung" placeholder="Freiwillig"></textarea></div>
+    <div id="f_bem" style="display:grid;gap:16px">
+      <div class="f"><label for="gefallen">Was hat Ihnen gut gefallen?</label><textarea id="gefallen" placeholder="Freiwillig"></textarea></div>
+      <div class="f"><label for="verbessern">Was könnte verbessert werden?</label><textarea id="verbessern" placeholder="Freiwillig"></textarea></div>
+    </div>
 
     <p class="err" id="formErr" hidden>Bitte füllen Sie die rot markierten Felder aus.</p>
     <p class="err" id="sendErr" hidden>Das Senden hat nicht geklappt. Bitte prüfen Sie die Internetverbindung und tippen Sie nochmals auf Senden.</p>
@@ -2482,7 +2485,7 @@ $('form').addEventListener('submit', async e => {
   if (!pruefen()){ $('formErr').hidden = false; const f = document.querySelector('.bad'); if (f) f.scrollIntoView({behavior:'smooth', block:'center'}); return; }
   const bewerber = ($('vorname').value.trim() + ' ' + $('nachname').value.trim());
   const bewertung = {}; if (wahl.entscheid !== 'Nicht einstellen') KRITERIEN.forEach((k,i) => bewertung[k] = wahl['k'+i] || 'keine Angabe');
-  const angaben = { 'Bewerber/in': bewerber, 'Datum Probetag': datumCH($('datum').value), 'Gouvernante': $('gouvernante').value.trim(), 'Standort': wahl.standort, 'Hotel oder Objekt': $('objekt').value.trim(), 'Entscheid': wahl.entscheid, 'Bewertung': bewertung, 'Zeit im Probezimmer': wahl.entscheid === 'Nicht einstellen' ? '' : $('zeit').value.trim(), 'Bemerkung': wahl.entscheid === 'Nicht einstellen' ? '' : $('bemerkung').value.trim() };
+  const angaben = { 'Bewerber/in': bewerber, 'Datum Probetag': datumCH($('datum').value), 'Gouvernante': $('gouvernante').value.trim(), 'Standort': wahl.standort, 'Hotel oder Objekt': $('objekt').value.trim(), 'Entscheid': wahl.entscheid, 'Bewertung': bewertung, 'Zeit im Probezimmer': wahl.entscheid === 'Nicht einstellen' ? '' : $('zeit').value.trim(), 'Was hat gut gefallen': wahl.entscheid === 'Nicht einstellen' ? '' : $('gefallen').value.trim(), 'Was könnte verbessert werden': wahl.entscheid === 'Nicht einstellen' ? '' : $('verbessern').value.trim() };
   if (wahl.entscheid === 'Nicht einstellen'){ angaben['Gründe Absage'] = [...gruende].join(', '); angaben['Begründung'] = $('begruendung').value.trim(); }
   const btn = $('sendBtn'); btn.disabled = true; btn.textContent = 'Wird gesendet …';
   try {
@@ -2495,7 +2498,7 @@ $('form').addEventListener('submit', async e => {
     KRITERIEN.forEach(k => mail[k] = bewertung[k]);
     mail['Zeit im Probezimmer'] = angaben['Zeit im Probezimmer'] || 'keine Angabe';
     if (angaben['Gründe Absage']){ mail['Gründe Absage'] = angaben['Gründe Absage']; mail['Begründung'] = angaben['Begründung']; }
-    mail['Bemerkung'] = angaben['Bemerkung'] || 'keine';
+    if (angaben['Entscheid'] !== 'Nicht einstellen'){ mail['Was hat gut gefallen'] = angaben['Was hat gut gefallen'] || 'keine Angabe'; mail['Was könnte verbessert werden'] = angaben['Was könnte verbessert werden'] || 'keine Angabe'; }
     if (angaben['Entscheid'] === 'Einstellen') mail['Nächster Schritt'] = 'Link zum Personalstammblatt an die Person schicken: ' + LINK_PERSONALBLATT;
     fetch('https://formsubmit.co/ajax/' + MELDEN_AN, { method:'POST', headers:{ 'Content-Type':'application/json', 'Accept':'application/json' }, body: JSON.stringify(mail) }).catch(() => {});
     $('doneText').textContent = 'Ihr Feedback zu ' + bewerber + ' ist bei AAAB eingegangen. Entscheid: ' + angaben['Entscheid'] + '.';
@@ -2509,7 +2512,7 @@ $('form').addEventListener('submit', async e => {
 });
 
 $('again').onclick = () => {
-  ['vorname','nachname','objekt','zeit','bemerkung','begruendung'].forEach(id => $(id).value = '');
+  ['vorname','nachname','objekt','zeit','gefallen','verbessern','begruendung'].forEach(id => $(id).value = '');
   gruende.clear(); document.querySelectorAll('#gruende button').forEach(b => b.setAttribute('aria-pressed','false')); $('absage').hidden = true; $('f_bewertung').hidden = false; $('f_zeit').hidden = false; $('f_bem').hidden = false;
   document.querySelectorAll('[data-group]').forEach(g => { if (g.dataset.group !== 'standort') { g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed','false')); delete wahl[g.dataset.group]; } });
   $('done').hidden = true; $('form').hidden = false; window.scrollTo({top:0});
