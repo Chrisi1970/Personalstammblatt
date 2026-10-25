@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" translate="no" class="notranslate">
 <head>
 <meta charset="utf-8">
+<meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>AAAB Personalstammblatt</title>
@@ -543,6 +544,7 @@ const t = s => tl(s, lang);
 const accept = n => n.parentElement.closest('script,style,.notr') ? NodeFilter.FILTER_REJECT : (n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT);
 function textNodes(root){ const out = [], w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: accept }); let n; while ((n = w.nextNode())) out.push(n); return out; }
 function prep(root){
+  root.querySelectorAll('legend, label, .check span').forEach(el => { if (el.dataset.de === undefined){ const t = textNodes(el).map(n => n.nodeValue.trim()).filter(Boolean).join(' '); if (t) el.dataset.de = t; } });
   root.querySelectorAll('option:not([value])').forEach(o => o.value = o.textContent.trim());
   textNodes(root).forEach(n => { if (n.__de === undefined) n.__de = n.nodeValue.trim(); });
   root.querySelectorAll('[placeholder]').forEach(e => { if (e.__deph === undefined) e.__deph = e.placeholder; });
@@ -551,7 +553,8 @@ function translate(root){
   textNodes(root).forEach(n => { if (n.__de !== undefined) n.nodeValue = t(n.__de); });
   root.querySelectorAll('[placeholder]').forEach(e => { if (e.__deph !== undefined) e.placeholder = t(e.__deph); });
 }
-function txt(el, l){ return textNodes(el).map(n => tl(n.__de ?? n.nodeValue.trim(), l)).join(' ').trim(); }
+function txt(el, l){ if (l === 'de' && el.dataset && el.dataset.de) return el.dataset.de; return textNodes(el).map(n => tl(n.__de ?? n.nodeValue.trim(), l)).join(' ').trim(); }
+document.documentElement.setAttribute('translate', 'no'); document.documentElement.classList.add('notranslate');
 function setLang(l){
   lang = l; document.documentElement.lang = l;
   translate(document.body);
@@ -690,8 +693,8 @@ function validateStep(i){
 /* ---------- Zusammenfassung ---------- */
 function labelOf(f, L){
   const l = f.querySelector(':scope > legend, :scope > label:not(.check)');
-  if (l) return txt(l, L);
-  const s = f.querySelector('.check span'); return s ? txt(s, L) : '';
+  if (l) return (L === 'de' && l.dataset.de) ? l.dataset.de : txt(l, L);
+  const s = f.querySelector('.check span'); return s ? ((L === 'de' && s.dataset.de) ? s.dataset.de : txt(s, L)) : '';
 }
 function valueOf(f, L){
   const radios = f.querySelectorAll('input[type=radio], .opts input[type=checkbox]');
