@@ -93,6 +93,8 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:16px}
         <div class="chips" id="gruende"><button type="button" class="chip">Unpünktlich</button><button type="button" class="chip">Arbeitstempo zu langsam</button><button type="button" class="chip">Qualität der Arbeit ungenügend</button><button type="button" class="chip">Hygiene oder Sorgfalt mangelhaft</button><button type="button" class="chip">Auftreten oder Umgangsformen</button><button type="button" class="chip">Verständigung oder Sprache</button><button type="button" class="chip">Teamarbeit</button><button type="button" class="chip">Person möchte selbst nicht</button><button type="button" class="chip">Anderer Grund</button></div></div>
       <div class="f" id="f_begr"><label class="req" for="begruendung">Begründung in eigenen Worten</label>
         <textarea id="begruendung" placeholder="z. B. Zimmer nach 60 Minuten nicht fertig, Bad nicht sauber"></textarea></div>
+      <div class="f" id="f_mitgeteilt"><span class="lab req">Haben Sie der Person den Entscheid schon mitgeteilt?</span>
+        <div class="chips" data-group="mitgeteilt"><button type="button" class="chip" data-v="Ja">Ja</button><button type="button" class="chip" data-v="Nein">Nein, das HR soll es mitteilen</button></div></div>
     </div>
 
     <div class="f" id="f_bewertung"><span class="lab">Bewertung</span>
@@ -2475,6 +2477,7 @@ function pruefen(){
   if (wahl.entscheid === 'Nicht einstellen'){
     if (!gruende.size){ $('f_gruende').classList.add('bad'); ok = false; } else $('f_gruende').classList.remove('bad');
     const bad = $('begruendung').value.trim().length < 5; $('f_begr').classList.toggle('bad', bad); if (bad) ok = false;
+    if (!wahl.mitgeteilt){ $('f_mitgeteilt').classList.add('bad'); ok = false; }
   }
   return ok;
 }
@@ -2486,7 +2489,7 @@ $('form').addEventListener('submit', async e => {
   const bewerber = ($('vorname').value.trim() + ' ' + $('nachname').value.trim());
   const bewertung = {}; if (wahl.entscheid !== 'Nicht einstellen') KRITERIEN.forEach((k,i) => bewertung[k] = wahl['k'+i] || 'keine Angabe');
   const angaben = { 'Bewerber/in': bewerber, 'Datum Probetag': datumCH($('datum').value), 'Gouvernante': $('gouvernante').value.trim(), 'Standort': wahl.standort, 'Hotel oder Objekt': $('objekt').value.trim(), 'Entscheid': wahl.entscheid, 'Bewertung': bewertung, 'Zeit im Probezimmer': wahl.entscheid === 'Nicht einstellen' ? '' : $('zeit').value.trim(), 'Was hat gut gefallen': wahl.entscheid === 'Nicht einstellen' ? '' : $('gefallen').value.trim(), 'Was könnte verbessert werden': wahl.entscheid === 'Nicht einstellen' ? '' : $('verbessern').value.trim() };
-  if (wahl.entscheid === 'Nicht einstellen'){ angaben['Gründe Absage'] = [...gruende].join(', '); angaben['Begründung'] = $('begruendung').value.trim(); }
+  if (wahl.entscheid === 'Nicht einstellen'){ angaben['Gründe Absage'] = [...gruende].join(', '); angaben['Begründung'] = $('begruendung').value.trim(); angaben['Entscheid schon mitgeteilt'] = wahl.mitgeteilt === 'Ja' ? 'Ja' : 'Nein, HR teilt mit'; }
   const btn = $('sendBtn'); btn.disabled = true; btn.textContent = 'Wird gesendet …';
   try {
     const res = await fetch(SUPABASE_URL + '/rest/v1/probetage', { method:'POST', headers:{ 'apikey': SUPABASE_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
@@ -2497,7 +2500,7 @@ $('form').addEventListener('submit', async e => {
       'Entscheid': angaben['Entscheid'], 'Bewerber/in': bewerber, 'Datum Probetag': angaben['Datum Probetag'], 'Standort': angaben['Standort'], 'Hotel oder Objekt': angaben['Hotel oder Objekt'], 'Gouvernante': angaben['Gouvernante'] };
     KRITERIEN.forEach(k => mail[k] = bewertung[k]);
     mail['Zeit im Probezimmer'] = angaben['Zeit im Probezimmer'] || 'keine Angabe';
-    if (angaben['Gründe Absage']){ mail['Gründe Absage'] = angaben['Gründe Absage']; mail['Begründung'] = angaben['Begründung']; }
+    if (angaben['Gründe Absage']){ mail['Gründe Absage'] = angaben['Gründe Absage']; mail['Begründung'] = angaben['Begründung']; mail['Entscheid schon mitgeteilt'] = angaben['Entscheid schon mitgeteilt']; }
     if (angaben['Entscheid'] !== 'Nicht einstellen'){ mail['Was hat gut gefallen'] = angaben['Was hat gut gefallen'] || 'keine Angabe'; mail['Was könnte verbessert werden'] = angaben['Was könnte verbessert werden'] || 'keine Angabe'; }
     if (angaben['Entscheid'] === 'Einstellen') mail['Nächster Schritt'] = 'Link zum Personalstammblatt an die Person schicken: ' + LINK_PERSONALBLATT;
     fetch('https://formsubmit.co/ajax/' + MELDEN_AN, { method:'POST', headers:{ 'Content-Type':'application/json', 'Accept':'application/json' }, body: JSON.stringify(mail) }).catch(() => {});
@@ -2513,6 +2516,7 @@ $('form').addEventListener('submit', async e => {
 
 $('again').onclick = () => {
   ['vorname','nachname','objekt','zeit','gefallen','verbessern','begruendung'].forEach(id => $(id).value = '');
+  delete wahl.mitgeteilt; document.querySelectorAll('[data-group=mitgeteilt] button').forEach(b => b.setAttribute('aria-pressed','false'));
   gruende.clear(); document.querySelectorAll('#gruende button').forEach(b => b.setAttribute('aria-pressed','false')); $('absage').hidden = true; $('f_bewertung').hidden = false; $('f_zeit').hidden = false; $('f_bem').hidden = false;
   document.querySelectorAll('[data-group]').forEach(g => { if (g.dataset.group !== 'standort') { g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed','false')); delete wahl[g.dataset.group]; } });
   $('done').hidden = true; $('form').hidden = false; window.scrollTo({top:0});
