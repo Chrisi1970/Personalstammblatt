@@ -206,7 +206,6 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
     <button type="button" class="btn ghost" id="pdfBtn">PDF herunterladen</button>
     <p class="done" id="pdfDone" hidden>PDF erstellt.</p>
     <p class="err" id="pdfErr" hidden>Das PDF liess sich nicht speichern. Bitte nochmals tippen.</p>
-    <button type="button" class="btn ghost" id="newBtn">Neues Probearbeiten ansagen</button>
   </section>
   </form>
 
@@ -2736,14 +2735,6 @@ $('sendBtn').onclick = async ()=>{
     $('sendErr').textContent = window.claude ? t('In dieser Vorschau ist Senden gesperrt. Öffnen Sie das Formular über aaab.ch.') : t('Das Senden hat nicht geklappt. Bitte prüfen Sie die Internetverbindung und tippen Sie nochmals auf Senden.');
     $('sendErr').hidden = false;
   }
-};
-$('newBtn').onclick = ()=>{
-  const g = v('gouv'); $('form').reset(); $('gouv').value = g;
-  gesendet = false; $('checkView').hidden = false; $('doneView').hidden = true; $('qr').innerHTML = '';
-  $('sendBtn').disabled = false; $('sendBtn').textContent = 'SENDEN';
-  document.querySelectorAll('.f.bad').forEach(f=>f.classList.remove('bad'));
-  try{ localStorage.removeItem(KEY); }catch(e){}
-  $('datum').value = heute(); absageAnzeigen(); show(0);
 };
 
 /* ---------- PDF (Deutsch) ---------- */
