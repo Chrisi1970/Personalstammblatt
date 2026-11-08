@@ -2674,7 +2674,7 @@ $('back').onclick = ()=>show(cur-1);
 const LINK_PROBETAG = 'https://chrisi1970.github.io/Personalstammblatt/probetag/';
 function ansageLink(){
   const q = new URLSearchParams();
-  ['vorname','nachname','email','tel','objekt','datum'].forEach(k => { if (v(k)) q.set(k, v(k)); });
+  ['vorname','nachname','objekt','datum'].forEach(k => { if (v(k)) q.set(k, v(k)); });
   if (radio('standort')) q.set('standort', radio('standort'));
   return LINK_PROBETAG + '?' + q.toString();
 }
