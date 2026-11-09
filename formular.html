@@ -1193,6 +1193,22 @@ try { const s = localStorage.getItem('aaab_lang'); if (s && LANGNAMES[s]) startL
 let urlLang = null;
 try { urlLang = new URLSearchParams(location.search).get('lang'); } catch(e){}
 setLang(urlLang && LANGNAMES[urlLang] ? urlLang : startLang);
+/* ---------- Vorausfüllen aus dem Bewertungsbogen Probetag ---------- */
+/* ?vorname=..&nachname=..&email=..&tel=%2B41791234567 */
+try {
+  const q = new URLSearchParams(location.search);
+  ['vorname','nachname','email'].forEach(k => { const x = (q.get(k) || '').trim(); if (x && $(k) && !$(k).value) $(k).value = x; });
+  let tel = (q.get('tel') || '').trim();
+  if (tel && !$('wa_nr').value){
+    let d = tel.replace(/[^\d+]/g, '').replace(/^00/, '+');
+    if (d.startsWith('+')){
+      d = d.slice(1);
+      const cc = Object.keys(VORWAHL).filter(c => d.startsWith(VORWAHL[c])).sort((a,b) => VORWAHL[b].length - VORWAHL[a].length || (a === 'CH' ? -1 : 1))[0];
+      if (cc){ $('wa_cc').value = cc; d = d.slice(VORWAHL[cc].length); }
+    }
+    $('wa_nr').value = d; telUpdate(true);
+  }
+} catch(e){}
 </script>
 
 </body>
