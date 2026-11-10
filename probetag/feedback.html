@@ -2696,6 +2696,15 @@ function fristDatum(l){
 }
 
 /* ---------- Schritte ---------- */
+/* Kopieren, auch wenn die Seite in einem Fenster auf aaab.ch läuft */
+async function kopiere(text){
+  try { await navigator.clipboard.writeText(text); return; } catch(e){}
+  const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly','');
+  ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.left = '0'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+  const ok = document.execCommand('copy'); ta.remove();
+  if (!ok) throw new Error('copy');
+}
 /* Personalstammblatt: QR-Code, WhatsApp und Link, sobald Einstellen gewählt ist */
 function stammblattZeigen(){
   const einstellen = radio('entscheid') === 'Einstellen';
@@ -2707,7 +2716,7 @@ function stammblattZeigen(){
   const nr = v('tel').replace(/[^\d+]/g,'').replace(/^00/,'+').replace(/^\+/,'');
   const txt = t('Willkommen bei AAAB! Bitte füllen Sie hier Ihr Personalstammblatt aus:') + ' ' + link;
   $('stWa').href = 'https://wa.me/' + (v('tel').trim().match(/^(\+|00)/) ? nr : '') + '?text=' + encodeURIComponent(txt);
-  $('stCopy').onclick = async () => { $('stMsg').hidden = false; try { await navigator.clipboard.writeText(link); $('stMsg').textContent = t('Link kopiert.'); } catch(e){ $('stMsg').textContent = link; } };
+  $('stCopy').onclick = async () => { $('stMsg').hidden = false; try { await kopiere(link); $('stMsg').textContent = t('Link kopiert.'); } catch(e){ $('stMsg').textContent = link; } };
 }
 /* Nach dem Senden zurückgehen: Formular wird wieder bearbeitbar und als Korrektur neu gesendet */
 let korrektur = false;
@@ -2774,7 +2783,7 @@ $('shMail').onclick = ()=>{ if (!ansageBereit()) return;
   const betreff = t('Probetag') + ' ' + v('vorname') + ' ' + v('nachname') + ', ' + v('objekt');
   location.href = 'mailto:?subject=' + encodeURIComponent(betreff) + '&body=' + encodeURIComponent(ansageText().replace(/\*/g,'')); };
 $('shCopy').onclick = async ()=>{ if (!ansageBereit()) return;
-  try { await navigator.clipboard.writeText(ansageText()); $('shMsg').textContent = t('Nachricht mit Link kopiert. Fügen Sie sie in WhatsApp oder in eine E-Mail ein.'); }
+  try { await kopiere(ansageText()); $('shMsg').textContent = t('Nachricht mit Link kopiert. Fügen Sie sie in WhatsApp oder in eine E-Mail ein.'); }
   catch(e){ $('shMsg').textContent = t('Kopieren hat nicht geklappt. Hier ist der Link') + ' ' + ansageLink(); }
   $('shMsg').hidden = false; };
 
