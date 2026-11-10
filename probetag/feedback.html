@@ -2741,7 +2741,7 @@ $('back').onclick = ()=>show(cur-1);
 
 /* ---------- Probearbeiten an die Gouvernante schicken ---------- */
 if (TESTPHASE) $('testinfo').hidden = false;
-const LINK_PROBETAG = 'https://chrisi1970.github.io/Personalstammblatt/probetag/';
+const LINK_PROBETAG = 'https://aaab.ch/bewertungsbogen-probetag/';
 function ansageLink(){
   const q = new URLSearchParams();
   ['vorname','nachname','objekt','datum','email','tel'].forEach(k => { if (v(k)) q.set(k, v(k)); });
