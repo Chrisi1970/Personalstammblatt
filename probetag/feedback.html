@@ -76,6 +76,10 @@ input:focus,textarea:focus,button:focus-visible,.opt input:focus-visible+span{ou
 .sub{border-left:3px solid var(--soft);padding-left:14px;display:grid;gap:18px}
 .err{color:var(--err);font-size:.9rem;font-weight:700}
 .btn{font:inherit;font-weight:700;border-radius:10px;min-height:48px;padding:0 20px;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.ibtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding-inline:12px}
+.ibtn span{white-space:nowrap}
+.ibtn .bi{width:20px;height:20px;flex:none}
+.btn.wa{background:#1b8f4a;border-color:#1b8f4a;color:#fff}
 .btn.ghost{background:transparent;color:var(--accent)}
 .testinfo{margin:0 0 6px;padding:6px 12px;border-radius:8px;background:#fff4d6;color:#7a5200;font-size:.85rem;font-weight:700}
 .share{margin-top:22px;padding:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--bg)}
@@ -143,9 +147,9 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
       <h2>An die Gouvernante schicken</h2>
       <p class="hint">Die Gouvernante erhält einen Link mit dem vorausgefüllten Bewertungsbogen.</p>
       <div class="shareBtns">
-        <button type="button" class="btn" id="shWa">WhatsApp</button>
-        <button type="button" class="btn" id="shMail">E-Mail</button>
-        <button type="button" class="btn ghost" id="shCopy">Link kopieren</button>
+        <button type="button" class="btn ibtn wa" id="shWa"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5z"/><path d="M9 9.5c0 2.5 2 5 5 5.5l1-1.3-1.8-1-.8.8c-.9-.4-1.6-1.1-2-2l.8-.8-1-1.8z" fill="currentColor" stroke-width="1"/></svg><span>WhatsApp</span></button>
+        <button type="button" class="btn ibtn" id="shMail"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg><span>E-Mail</span></button>
+        <button type="button" class="btn ghost ibtn" id="shCopy"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg><span>Link kopieren</span></button>
       </div>
       <p class="hint notr" id="shMsg" hidden></p>
     </div>
@@ -203,8 +207,8 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
         <p class="hint">Mit der Handykamera scannen oder fotografieren. Dann öffnet sich das Personalstammblatt zum Ausfüllen.</p>
         <p class="hint">Vorname, Nachname, E-Mail und Telefon sind im Personalstammblatt schon eingetragen.</p>
         <div class="stbtns">
-          <a class="btn" id="stWa" href="#" target="_blank" rel="noopener">Per WhatsApp an die Person schicken</a>
-          <button type="button" class="btn ghost" id="stCopy">Link kopieren</button>
+          <a class="btn ibtn wa" id="stWa" href="#" target="_blank" rel="noopener"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5z"/><path d="M9 9.5c0 2.5 2 5 5 5.5l1-1.3-1.8-1-.8.8c-.9-.4-1.6-1.1-2-2l.8-.8-1-1.8z" fill="currentColor" stroke-width="1"/></svg><span>Per WhatsApp an die Person schicken</span></a>
+          <button type="button" class="btn ghost ibtn" id="stCopy"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg><span>Link kopieren</span></button>
         </div>
         <p class="hint notr" id="stMsg" hidden></p>
       </div>
