@@ -7,7 +7,7 @@ Auf aaab.ch werden sie über WordPress-Seiten eingebunden.
 |---|---|---|---|
 | Personalstammblatt | `/` (Hauptordner) | `formular.html` | aaab.ch/personalstammblatt |
 | Bewertungsbogen Probetag | `/probetag/` | `feedback.html` | aaab.ch/probetag |
-| Ferienantrag 2027 | `/ferienantrag/` | `index.html` | aaab.ch/ferienantrag |
+| Ferienantrag 2026 / 2027 | `/ferienantrag/` | `index.html` | aaab.ch/ferienantrag |
 
 Jeder Ordner hat eine kleine `index.html`, die auf das Formular weiterleitet
 und die Vorschau für WhatsApp liefert. Links mit Angaben (`?vorname=...`)
