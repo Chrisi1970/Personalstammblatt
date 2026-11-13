@@ -2665,7 +2665,11 @@ try { const g = localStorage.getItem('aaab_gouvernante'); if (g) $('gouv').value
 const KEY = 'aaab-probetag-entwurf';
 function save(){ try{ const d={}; document.querySelectorAll('#form input,#form textarea').forEach(el=>{ if(el.type==='radio'||el.type==='checkbox'){ if(el.checked) (d[el.name] = d[el.name] || []).push(el.value); } else d[el.id]=el.value; }); d._step=cur; localStorage.setItem(KEY,JSON.stringify(d)); }catch(e){} }
 function load(){ try{ if (ausLink) return; const d=JSON.parse(localStorage.getItem(KEY)||'null'); if(!d) return; Object.entries(d).forEach(([k,val])=>{ if(k==='_step') return; if(Array.isArray(val)) val.forEach(x=>{ const r=document.querySelector(`input[name="${k}"][value="${CSS.escape(x)}"]`); if(r) r.checked=true; }); else if($(k)) $(k).value=val; }); if(d._step && d._step < steps.length-1) cur=d._step; }catch(e){} }
-load(); absageAnzeigen();
+/* ?neu=1 öffnet immer ein leeres Formular (Link fürs Recruiting) */
+const NEU = new URLSearchParams(location.search).has('neu');
+if (NEU){ try { localStorage.removeItem(KEY); } catch(e){} $('datum').value = ''; }
+else load();
+absageAnzeigen();
 $('form').addEventListener('input', e => { const f = e.target.closest('.f'); if (f) f.classList.remove('bad'); save(); });
 $('form').addEventListener('change', e => { const f = e.target.closest('.f'); if (f) f.classList.remove('bad'); save(); });
 $('form').addEventListener('submit', e => e.preventDefault());
@@ -2869,6 +2873,7 @@ function hotelSuchen(){
   return h || null;
 }
 $('objekt').addEventListener('change', ()=>{ const h = hotelSuchen(); if (h) { $('adresse').value = h.adresse; save(); } });
+{ const h0 = hotelSuchen(); if (h0 && !v('adresse')) $('adresse').value = h0.adresse; }
 hotelKnoepfe();
 function bewerberinText(){
   const [y,m,d] = v('datum').split('-').map(Number);
