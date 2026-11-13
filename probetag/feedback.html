@@ -142,7 +142,20 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
     <div class="f"><label for="tel">Telefonnummer</label><input type="tel" id="tel" inputmode="tel" autocomplete="off" placeholder="+41 79 123 45 67"></div>
     <fieldset class="f"><legend class="req">Standort</legend><div class="opts" id="standort"></div></fieldset>
     <div class="f"><label for="objekt" class="req">Hotel / Objekt</label><input type="text" id="objekt" autocomplete="off"></div>
-    <div class="f"><label for="datum" class="req">Datum des Probetags</label><input type="date" id="datum"></div>
+    <div class="f"><label for="adresse">Adresse des Hotels</label><input type="text" id="adresse" autocomplete="off" placeholder="Strasse Nr. · PLZ Ort"><span class="hint">Bekannte Hotels werden automatisch eingetragen.</span></div>
+    <div class="row">
+      <div class="f"><label for="datum" class="req">Datum des Probetags</label><input type="date" id="datum"></div>
+      <div class="f"><label for="zeit">Zeit</label><input type="time" id="zeit" value="09:00"></div>
+    </div>
+    <div class="share notr">
+      <h2>Mail an die Bewerberin</h2>
+      <p class="hint">Bestätigung mit Ort, Datum und Zeit. Geht an die E-Mail-Adresse oben.</p>
+      <div class="shareBtns">
+        <button type="button" class="btn ibtn" id="bwMail"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg><span>Mail öffnen</span></button>
+        <button type="button" class="btn ghost ibtn" id="bwCopy"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Text kopieren</span></button>
+      </div>
+      <p class="hint" id="bwMsg" hidden></p>
+    </div>
     <div class="share">
       <h2>An die Gouvernante schicken</h2>
       <p class="hint">Die Gouvernante erhält einen Link mit dem vorausgefüllten Bewertungsbogen.</p>
@@ -2764,7 +2777,8 @@ function ansageLink(){
 }
 function ansageText(){
   const [y,m,d] = v('datum').split('-').map(Number);
-  const dat = !v('datum') ? '' : datumLang(new Date(y, m-1, d), lang);
+  const zt = v('zeit') ? ', ' + (lang === 'de' ? v('zeit').replace(':','.') + ' Uhr' : v('zeit')) : '';
+  const dat = !v('datum') ? '' : datumLang(new Date(y, m-1, d), lang) + zt;
   const vorlage = (I18N.MSG_ANSAGE[lang] || I18N.MSG_ANSAGE.de);
   const datG = dat.charAt(0).toUpperCase() + dat.slice(1);
   const an = radio('anrede');
@@ -2786,6 +2800,71 @@ $('shCopy').onclick = async ()=>{ if (!ansageBereit()) return;
   try { await kopiere(ansageText()); $('shMsg').textContent = t('Nachricht mit Link kopiert. Fügen Sie sie in WhatsApp oder in eine E-Mail ein.'); }
   catch(e){ $('shMsg').textContent = t('Kopieren hat nicht geklappt. Hier ist der Link') + ' ' + ansageLink(); }
   $('shMsg').hidden = false; };
+
+/* ---------- Mail an die Bewerberin (Vorlage Chris) ---------- */
+/* Bekannte Hotels: Stichwort im Feld Hotel / Objekt -> Adresse */
+const HOTELS = [
+  { such:'zurzach', name:'Parkhotel Bad Zurzach', adresse:'Badstrasse 44 · 5330 Bad Zurzach' },
+  { such:'dorint', name:'Dorint Airport Hotel Zürich', adresse:'Riethofstrasse 40 · 8152 Opfikon' },
+  { such:'hyperion', name:'HYPERION Hotel Basel', adresse:'Messeplatz 12 · 4058 Basel' },
+  { such:'gotthard', name:'Hotel St. Gotthard', adresse:'Bahnhofstrasse 87 · 8001 Zürich' },
+  { such:'wäscherei', name:'AAAB Wäscherei', adresse:'Schaffhauserstrasse 134 · 8152 Glattbrugg' },
+  { such:'euler', name:'Hotel Euler Basel', adresse:'Centralbahnplatz 14 · 4002 Basel' }
+];
+function hotelSuchen(){
+  const o = v('objekt').toLowerCase();
+  const h = HOTELS.find(x => o.includes(x.such) || o.includes(x.name.toLowerCase()));
+  return h || null;
+}
+$('objekt').addEventListener('change', ()=>{ const h = hotelSuchen(); if (h) { $('adresse').value = h.adresse; save(); } });
+function bewerberinText(){
+  const [y,m,d] = v('datum').split('-').map(Number);
+  const dat = v('datum') ? datumLang(new Date(y, m-1, d), 'de') : '';
+  const datG = dat.charAt(0).toUpperCase() + dat.slice(1);
+  const anrede = radio('anrede') === 'Herr' ? 'Guten Tag Herr ' : radio('anrede') === 'Frau' ? 'Guten Tag Frau ' : 'Guten Tag ' + v('vorname') + ' ';
+  const adr = v('adresse');
+  const karte = adr ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent((v('objekt') + ', ' + adr).replace(/ · /g, ', ')) : '';
+  const zeit = (v('zeit') || '09:00').replace(':', '.');
+  return [
+    anrede + v('nachname'),
+    '',
+    'Herzlichen Dank für Ihre Rückmeldung. Wir freuen uns, Ihnen den Termin für Ihren Probetag zu bestätigen.',
+    '',
+    '📍 Ort: ' + v('objekt') + (adr ? ', ' + adr : ''),
+    karte ? '🗺️ Karte: ' + karte : null,
+    '📅 Datum: ' + datG,
+    '⏰ Zeit: ' + zeit + ' Uhr',
+    '',
+    'Bitte melden Sie sich an der Rezeption. Dort holt Sie jemand ab.',
+    '',
+    'Für Ihren Probetag haben wir eine erfahrene Gouvernante aus unserem Team eingeplant. Sie leitet den Probetag und begleitet Sie dabei. Von ihrer Erfahrung und Anleitung werden Sie bestimmt profitieren.',
+    '',
+    'Bitte beachten Sie, dass der Probetag unbezahlt ist. Tragen Sie komplett schwarze Kleidung und bequeme schwarze Schuhe.',
+    '',
+    'Verläuft der Probetag erfolgreich, sprechen wir gern mit Ihnen über den Stundenlohn und die Vertragsbedingungen.',
+    '',
+    'Wir freuen uns darauf, Sie am Probetag kennenzulernen und mehr über Ihre Fähigkeiten und Erfahrungen zu erfahren.',
+    '',
+    'Mit herzlichen Grüssen',
+    '',
+    'Christina Kunz',
+    'AAAB GmbH',
+    '8152 Glattbrugg',
+    '+41 43 557 33 12',
+    'www.aaab.ch'
+  ].filter(x => x !== null).join('\n');
+}
+function bewerberinBetreff(){
+  const [y,m,d] = v('datum').split('-').map(Number);
+  const dat = v('datum') ? datumLang(new Date(y, m-1, d), 'de') : '';
+  return 'Ihr Probetag am ' + dat + ', ' + v('objekt');
+}
+$('bwMail').onclick = ()=>{ if (!ansageBereit()) return;
+  location.href = 'mailto:' + encodeURIComponent(v('email')).replace('%40','@') + '?subject=' + encodeURIComponent(bewerberinBetreff()) + '&body=' + encodeURIComponent(bewerberinText()); };
+$('bwCopy').onclick = async ()=>{ if (!ansageBereit()) return;
+  try { await kopiere(bewerberinText()); $('bwMsg').textContent = 'Text kopiert. Fügen Sie ihn in Ihr Mail ein.'; }
+  catch(e){ $('bwMsg').textContent = 'Kopieren hat nicht geklappt.'; }
+  $('bwMsg').hidden = false; };
 
 /* ---------- Senden: Supabase (Tabelle probetage) und E-Mail ---------- */
 function doneTextSetzen(){ $('doneText').textContent = t('Ihr Feedback zu {n} ist bei AAAB eingegangen. Entscheid: {e}.').replace('{n}', v('vorname')+' '+v('nachname')).replace('{e}', t(radio('entscheid'))); }
