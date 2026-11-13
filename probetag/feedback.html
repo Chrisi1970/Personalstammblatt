@@ -97,6 +97,8 @@ input:focus,textarea:focus,button:focus-visible,.opt input:focus-visible+span{ou
 .nav .btn{flex:1}
 .prefill{background:var(--soft);border-radius:10px;padding:12px 14px;display:grid;gap:2px;font-size:.95rem}
 .prefill b{color:var(--accent)}
+.prefill .pname{font-size:1.45rem;line-height:1.25;font-weight:800;margin-bottom:4px}
+.prefill .pdat{font-weight:700;color:var(--ink,inherit)}
 .notice{margin:0;padding:12px 14px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-weight:700;border:1.5px solid var(--warn)}
 .notice.small{padding:8px 12px;font-size:.92rem}
 .sum{display:grid;gap:4px;margin:0}
@@ -2716,7 +2718,7 @@ function wochentag(s, l){
 }
 function renderPrefill(){
   const an = radio('anrede') ? t(radio('anrede')) + ' ' : '';
-  $('prefill').innerHTML = `<b>${esc(an + v('vorname') + ' ' + v('nachname'))}</b><span>${esc(radio('standort'))} · ${esc(v('objekt'))} · ${esc(wochentag(v('datum'), lang))}</span>${v('tel')?`<span>${esc(v('tel'))}</span>`:''}`;
+  $('prefill').innerHTML = `<b class="pname">${esc(an + v('vorname') + ' ' + v('nachname'))}</b><span>${esc(radio('standort'))} · ${esc(v('objekt'))} · <b class="pdat">${esc(wochentag(v('datum'), lang))}</b></span>${v('tel')?`<span>${esc(v('tel'))}</span>`:''}`;
 }
 function datumLang(x, l){
   if (l === 'sq'){
