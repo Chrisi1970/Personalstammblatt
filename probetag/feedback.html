@@ -2846,7 +2846,7 @@ function bewerberinText(){
   const datG = dat.charAt(0).toUpperCase() + dat.slice(1);
   const anrede = radio('anrede') === 'Herr' ? 'Guten Tag Herr ' : radio('anrede') === 'Frau' ? 'Guten Tag Frau ' : 'Guten Tag ' + v('vorname') + ' ';
   const adr = v('adresse');
-  const karte = adr ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent((v('objekt') + ', ' + adr).replace(/ · /g, ', ')) : '';
+  const karte = adr ? 'https://maps.google.com/?q=' + encodeURIComponent((v('objekt') + ' ' + adr).replace(/ · /g, ' ')).replace(/%20/g, '+') : '';
   const zeit = (v('zeit') || '09:00').replace(':', '.');
   return [
     anrede + v('nachname'),
@@ -2882,9 +2882,15 @@ function bewerberinBetreff(){
   const dat = v('datum') ? datumLang(new Date(y, m-1, d), 'de') : '';
   return 'Ihr Probetag am ' + dat + ', ' + v('objekt');
 }
-$('bwMail').onclick = ()=>{ if (!ansageBereit()) return;
+function bwDatumOk(){
+  if (v('datum') && v('datum') >= heute()) return true;
+  $('bwMsg').textContent = v('datum') ? 'Das Datum liegt in der Vergangenheit. Bitte prüfen Sie das Datum des Probetags.' : 'Bitte tragen Sie das Datum des Probetags ein.';
+  $('bwMsg').hidden = false; $('datum').closest('.f').classList.add('bad'); $('datum').scrollIntoView({behavior:'smooth',block:'center'});
+  return false;
+}
+$('bwMail').onclick = ()=>{ if (!ansageBereit() || !bwDatumOk()) return; $('bwMsg').hidden = true;
   location.href = 'mailto:' + encodeURIComponent(v('email')).replace('%40','@') + '?subject=' + encodeURIComponent(bewerberinBetreff()) + '&body=' + encodeURIComponent(bewerberinText()); };
-$('bwCopy').onclick = async ()=>{ if (!ansageBereit()) return;
+$('bwCopy').onclick = async ()=>{ if (!ansageBereit() || !bwDatumOk()) return;
   try { await kopiere(bewerberinText()); $('bwMsg').textContent = 'Text kopiert. Fügen Sie ihn in Ihr Mail ein.'; }
   catch(e){ $('bwMsg').textContent = 'Kopieren hat nicht geklappt.'; }
   $('bwMsg').hidden = false; };
