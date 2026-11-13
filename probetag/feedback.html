@@ -2624,7 +2624,8 @@ const HOTELS = [
   { such:'gotthard', name:'Hotel St. Gotthard', adresse:'Bahnhofstrasse 87 · 8001 Zürich', standort:['Zürich'] },
   { such:'wäscherei', name:'AAAB Wäscherei', adresse:'Schaffhauserstrasse 134 · 8152 Glattbrugg', standort:['Glattbrugg'] },
   { such:'hyperion', name:'HYPERION Hotel Basel', adresse:'Messeplatz 12 · 4058 Basel', standort:['Basel'] },
-  { such:'euler', name:'Hotel Euler Basel', adresse:'Centralbahnplatz 14 · 4002 Basel', standort:['Basel'] }
+  { such:'euler', name:'Hotel Euler Basel', adresse:'Centralbahnplatz 14 · 4002 Basel', standort:['Basel'] },
+  { such:'glandon', name:'GLANDON Apartments «Zum Schiff»', adresse:'Bäderstrasse 18 · 5400 Baden', standort:['Baden'] }
 ];
 /* Kurzlink: ?p=F~Vorname~Nachname~hotel~standort~JJJJMMTT~email~tel */
 function kurzLesen(q){
@@ -2823,7 +2824,7 @@ function ansageText(){
   const ANR = { de:{Frau:'Frau',Herr:'Herr'}, en:{Frau:'Ms',Herr:'Mr'}, it:{Frau:'la signora',Herr:'il signor'}, es:{Frau:'la señora',Herr:'el señor'}, sq:{Frau:'zonja',Herr:'zotëri'} };
   const person = (an ? (ANR[lang] || ANR.de)[an] + ' ' : '') + v('vorname') + ' ' + v('nachname');
   const o = v('objekt');
-  const ort = { de: (/wäscherei/i.test(o) ? 'bei euch in der ' : 'bei euch im ') + o, en: 'at your place, ' + o, it: 'da voi, ' + o, es: 'con vosotros, ' + o, sq: 'te ju, ' + o }[lang] || o;
+  const ort = { de: (/wäscherei/i.test(o) ? 'bei euch in der ' : /apartments/i.test(o) ? 'bei euch in den ' : 'bei euch im ') + o, en: 'at your place, ' + o, it: 'da voi, ' + o, es: 'con vosotros, ' + o, sq: 'te ju, ' + o }[lang] || o;
   return vorlage.replace('{d}', lang === 'it' ? datG : dat).replace('{n}', person).replace('{o}', ort).replace('{l}', ansageLink());
 }
 function ansageBereit(){
@@ -2881,7 +2882,7 @@ function bewerberinText(){
   const datG = dat.charAt(0).toUpperCase() + dat.slice(1);
   const anrede = radio('anrede') === 'Herr' ? 'Guten Tag Herr ' : radio('anrede') === 'Frau' ? 'Guten Tag Frau ' : 'Guten Tag ' + v('vorname') + ' ';
   const adr = v('adresse');
-  const karte = adr ? 'https://maps.google.com/?q=' + encodeURIComponent((v('objekt') + ' ' + adr).replace(/ · /g, ' ')).replace(/%20/g, '+') : '';
+  const karte = adr ? 'https://maps.google.com/?q=' + encodeURIComponent((v('objekt') + ' ' + adr).replace(/ · /g, ' ').replace(/[«»]/g, '')).replace(/%20/g, '+') : '';
   const zeit = (v('zeit') || '09:00').replace(':', '.');
   return [
     anrede + v('nachname'),
