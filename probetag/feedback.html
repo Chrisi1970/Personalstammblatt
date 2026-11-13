@@ -84,6 +84,9 @@ input:focus,textarea:focus,button:focus-visible,.opt input:focus-visible+span{ou
 .testinfo{margin:0 0 6px;padding:6px 12px;border-radius:8px;background:#fff4d6;color:#7a5200;font-size:.85rem;font-weight:700}
 .share{margin-top:22px;padding:16px;border:1.5px solid var(--line);border-radius:14px;background:var(--bg)}
 .share h2{font-size:1.1rem;margin:0 0 4px}
+.hwahl{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 8px}
+.hwahl button{font:inherit;font-size:.92em;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);cursor:pointer}
+.hwahl button.on{background:#1f5fae;border-color:#1f5fae;color:#fff;font-weight:600}
 .shareBtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .shareBtns .btn{flex:1 1 120px}
 .btn.small{min-height:36px;padding:0 12px;font-size:.88rem}
@@ -141,7 +144,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
     <div class="f"><label for="email">E-Mail</label><input type="email" id="email" inputmode="email" autocomplete="off"><span class="hint">Geht direkt ins Personalstammblatt. Im Bewertungsbogen der Gouvernante erscheint sie nicht.</span></div>
     <div class="f"><label for="tel">Telefonnummer</label><input type="tel" id="tel" inputmode="tel" autocomplete="off" placeholder="+41 79 123 45 67"></div>
     <fieldset class="f"><legend class="req">Standort</legend><div class="opts" id="standort"></div></fieldset>
-    <div class="f"><label for="objekt" class="req">Hotel / Objekt</label><input type="text" id="objekt" autocomplete="off"></div>
+    <div class="f"><label for="objekt" class="req">Hotel / Objekt</label><div class="hwahl notr" id="hwahl"></div><input type="text" id="objekt" autocomplete="off" placeholder="Hotel antippen oder Namen eintippen"></div>
     <div class="f"><label for="adresse">Adresse des Hotels</label><input type="text" id="adresse" autocomplete="off" placeholder="Strasse Nr. · PLZ Ort"><span class="hint">Bekannte Hotels werden automatisch eingetragen.</span></div>
     <div class="row">
       <div class="f"><label for="datum" class="req">Datum des Probetags</label><input type="date" id="datum"></div>
@@ -2804,19 +2807,39 @@ $('shCopy').onclick = async ()=>{ if (!ansageBereit()) return;
 /* ---------- Mail an die Bewerberin (Vorlage Chris) ---------- */
 /* Bekannte Hotels: Stichwort im Feld Hotel / Objekt -> Adresse */
 const HOTELS = [
-  { such:'zurzach', name:'Parkhotel Bad Zurzach', adresse:'Badstrasse 44 · 5330 Bad Zurzach' },
-  { such:'dorint', name:'Dorint Airport Hotel Zürich', adresse:'Riethofstrasse 40 · 8152 Opfikon' },
-  { such:'hyperion', name:'HYPERION Hotel Basel', adresse:'Messeplatz 12 · 4058 Basel' },
-  { such:'gotthard', name:'Hotel St. Gotthard', adresse:'Bahnhofstrasse 87 · 8001 Zürich' },
-  { such:'wäscherei', name:'AAAB Wäscherei', adresse:'Schaffhauserstrasse 134 · 8152 Glattbrugg' },
-  { such:'euler', name:'Hotel Euler Basel', adresse:'Centralbahnplatz 14 · 4002 Basel' }
+  { such:'zurzach', name:'Parkhotel Bad Zurzach', adresse:'Badstrasse 44 · 5330 Bad Zurzach', standort:['Zurzach'] },
+  { such:'dorint', name:'Dorint Airport Hotel Zürich', adresse:'Riethofstrasse 40 · 8152 Opfikon', standort:['Zürich','Glattbrugg'] },
+  { such:'gotthard', name:'Hotel St. Gotthard', adresse:'Bahnhofstrasse 87 · 8001 Zürich', standort:['Zürich'] },
+  { such:'wäscherei', name:'AAAB Wäscherei', adresse:'Schaffhauserstrasse 134 · 8152 Glattbrugg', standort:['Glattbrugg'] },
+  { such:'hyperion', name:'HYPERION Hotel Basel', adresse:'Messeplatz 12 · 4058 Basel', standort:['Basel'] },
+  { such:'euler', name:'Hotel Euler Basel', adresse:'Centralbahnplatz 14 · 4002 Basel', standort:['Basel'] }
 ];
+/* Hotels zum Antippen, passend zum gewählten Standort */
+function hotelKnoepfe(){
+  const st = radio('standort');
+  const liste = HOTELS.filter(h => !st || h.standort.includes(st));
+  $('hwahl').innerHTML = '';
+  liste.forEach(h => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = h.name;
+    if (v('objekt') === h.name) b.className = 'on';
+    b.onclick = ()=>{
+      $('objekt').value = h.name; $('adresse').value = h.adresse;
+      if (!radio('standort')){ const r = document.querySelector(`input[name="standort"][value="${h.standort[0]}"]`); if (r) r.checked = true; }
+      $('objekt').closest('.f').classList.remove('bad'); save(); hotelKnoepfe();
+    };
+    $('hwahl').appendChild(b);
+  });
+  $('hwahl').hidden = !liste.length;
+}
+$('standort').addEventListener('change', hotelKnoepfe);
+$('objekt').addEventListener('input', hotelKnoepfe);
 function hotelSuchen(){
   const o = v('objekt').toLowerCase();
   const h = HOTELS.find(x => o.includes(x.such) || o.includes(x.name.toLowerCase()));
   return h || null;
 }
 $('objekt').addEventListener('change', ()=>{ const h = hotelSuchen(); if (h) { $('adresse').value = h.adresse; save(); } });
+hotelKnoepfe();
 function bewerberinText(){
   const [y,m,d] = v('datum').split('-').map(Number);
   const dat = v('datum') ? datumLang(new Date(y, m-1, d), 'de') : '';
