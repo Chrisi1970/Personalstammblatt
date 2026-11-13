@@ -2822,6 +2822,11 @@ function ansageText(){
 }
 function ansageBereit(){
   $('shMsg').hidden = true;
+  if (v('datum') && v('datum') < heute()){
+    $('shMsg').textContent = 'Das Datum liegt in der Vergangenheit. Bitte prüfen Sie das Datum des Probetags.';
+    $('shMsg').hidden = false; $('datum').closest('.f').classList.add('bad'); $('datum').scrollIntoView({behavior:'smooth',block:'center'});
+    return false;
+  }
   if (pruefe(0)) return true;
   const f = steps[0].querySelector('.f.bad'); if (f) f.scrollIntoView({behavior:'smooth',block:'center'});
   return false;
