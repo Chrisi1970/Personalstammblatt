@@ -88,6 +88,10 @@ input:focus,textarea:focus,button:focus-visible,.opt input:focus-visible+span{ou
 .hwahl button{font:inherit;font-size:.92em;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);cursor:pointer}
 .hwahl button.on{background:#1f5fae;border-color:#1f5fae;color:#fff;font-weight:600}
 .shareBtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.stWahl{display:flex;gap:8px;margin-top:10px}
+.stWahl button{flex:1 1 120px;font:inherit;font-weight:600;padding:12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);cursor:pointer}
+.stWahl #stJa.on{background:#1e7e34;border-color:#1e7e34;color:#fff}
+.stWahl #stNein.on{background:#c62828;border-color:#c62828;color:#fff}
 .shareBtns .btn{flex:1 1 120px}
 .btn.small{min-height:36px;padding:0 12px;font-size:.88rem}
 .btn.send{min-height:56px;font-size:1.1rem;letter-spacing:.06em}
@@ -170,6 +174,15 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
         <button type="button" class="btn ghost ibtn" id="shCopy"><svg class="bi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg><span>Link kopieren</span></button>
       </div>
       <p class="hint notr" id="shMsg" hidden></p>
+    </div>
+    <div class="share notr">
+      <h2>Termin bestätigt?</h2>
+      <p class="hint">Sobald die Bewerberin zu- oder absagt, hier antippen. Die Antwort wird für die Probetag-Liste gespeichert.</p>
+      <div class="stWahl">
+        <button type="button" id="stJa">✓ Bestätigt</button>
+        <button type="button" id="stNein">✕ Abgesagt</button>
+      </div>
+      <p class="hint" id="stMsg" hidden></p>
     </div>
   </section>
 
@@ -2668,7 +2681,7 @@ function save(){ try{ const d={}; document.querySelectorAll('#form input,#form t
 function load(){ try{ if (ausLink) return; const d=JSON.parse(localStorage.getItem(KEY)||'null'); if(!d) return; Object.entries(d).forEach(([k,val])=>{ if(k==='_step') return; if(Array.isArray(val)) val.forEach(x=>{ const r=document.querySelector(`input[name="${k}"][value="${CSS.escape(x)}"]`); if(r) r.checked=true; }); else if($(k)) $(k).value=val; }); if(d._step && d._step < steps.length-1) cur=d._step; }catch(e){} }
 /* ?neu=1 öffnet immer ein leeres Formular (Link fürs Recruiting) */
 const NEU = new URLSearchParams(location.search).has('neu');
-if (NEU){ try { localStorage.removeItem(KEY); } catch(e){} $('datum').value = ''; }
+if (NEU){ try { localStorage.removeItem(KEY); localStorage.removeItem('aaab-probetag-ansage'); } catch(e){} $('datum').value = ''; }
 else load();
 absageAnzeigen();
 $('form').addEventListener('input', e => { const f = e.target.closest('.f'); if (f) f.classList.remove('bad'); save(); });
@@ -2838,11 +2851,55 @@ function ansageBereit(){
   const f = steps[0].querySelector('.f.bad'); if (f) f.scrollIntoView({behavior:'smooth',block:'center'});
   return false;
 }
-$('shWa').onclick = ()=>{ if (ansageBereit()) window.open('https://wa.me/?text=' + encodeURIComponent(ansageText()), '_blank'); };
+/* ---------- Ansage speichern (Tabelle ansagen) ---------- */
+const AKEY = 'aaab-probetag-ansage';
+function ansageDaten(){
+  return { anrede: radio('anrede') || '', vorname: v('vorname'), nachname: v('nachname'), email: v('email'), tel: v('tel'),
+    standort: radio('standort') || '', objekt: v('objekt'), adresse: v('adresse'), datum: v('datum'), zeit: v('zeit') };
+}
+async function ansageSpeichern(){
+  try {
+    const d = ansageDaten(); const h = JSON.stringify(d);
+    let a = {}; try { a = JSON.parse(localStorage.getItem(AKEY) || '{}'); } catch(e){}
+    if (a.h === h && a.id) return a;
+    const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/ansage_speichern', { method:'POST',
+      headers:{ 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type':'application/json' },
+      body: JSON.stringify({ p_id: a.id || null, p_code: a.code || null, p: d }) });
+    if (!res.ok) return null;
+    const r = await res.json();
+    a = { id: r.id, code: r.code, h: h, status: a.status || 'Offen' };
+    localStorage.setItem(AKEY, JSON.stringify(a));
+    return a;
+  } catch(e){ return null; }
+}
+function statusZeigen(){
+  let a = {}; try { a = JSON.parse(localStorage.getItem(AKEY) || '{}'); } catch(e){}
+  $('stJa').classList.toggle('on', a.status === 'Bestätigt');
+  $('stNein').classList.toggle('on', a.status === 'Abgesagt');
+}
+async function statusSetzen(st){
+  if (!ansageBereit()) return;
+  const a = await ansageSpeichern();
+  if (!a){ $('stMsg').textContent = 'Speichern hat nicht geklappt. Bitte Internetverbindung prüfen und nochmals antippen.'; $('stMsg').hidden = false; return; }
+  const neu = a.status === st ? 'Offen' : st;
+  const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/ansage_status', { method:'POST',
+    headers:{ 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify({ p_id: a.id, p_code: a.code, p_status: neu }) }).catch(() => null);
+  if (!res || !res.ok){ $('stMsg').textContent = 'Speichern hat nicht geklappt. Bitte nochmals antippen.'; $('stMsg').hidden = false; return; }
+  a.status = neu; localStorage.setItem(AKEY, JSON.stringify(a)); statusZeigen();
+  $('stMsg').textContent = neu === 'Offen' ? 'Zurück auf Offen gesetzt.' : 'Gespeichert. Der Termin ist als «' + neu + '» vermerkt.';
+  $('stMsg').hidden = false;
+}
+$('stJa').onclick = ()=> statusSetzen('Bestätigt');
+$('stNein').onclick = ()=> statusSetzen('Abgesagt');
+statusZeigen();
+$('shWa').onclick = ()=>{ if (ansageBereit()){ ansageSpeichern(); window.open('https://wa.me/?text=' + encodeURIComponent(ansageText()), '_blank'); } };
 $('shMail').onclick = ()=>{ if (!ansageBereit()) return;
+  ansageSpeichern();
   const betreff = t('Probetag') + ' ' + v('vorname') + ' ' + v('nachname') + ', ' + v('objekt');
   location.href = 'mailto:?subject=' + encodeURIComponent(betreff) + '&body=' + encodeURIComponent(ansageText().replace(/\*/g,'')); };
 $('shCopy').onclick = async ()=>{ if (!ansageBereit()) return;
+  ansageSpeichern();
   try { await kopiere(ansageText()); $('shMsg').textContent = t('Nachricht mit Link kopiert. Fügen Sie sie in WhatsApp oder in eine E-Mail ein.'); }
   catch(e){ $('shMsg').textContent = t('Kopieren hat nicht geklappt. Hier ist der Link') + ' ' + ansageLink(); }
   $('shMsg').hidden = false; };
@@ -2924,7 +2981,7 @@ function bwDatumOk(){
   $('bwMsg').hidden = false; $('datum').closest('.f').classList.add('bad'); $('datum').scrollIntoView({behavior:'smooth',block:'center'});
   return false;
 }
-$('bwMail').onclick = ()=>{ if (!ansageBereit() || !bwDatumOk()) return; $('bwMsg').hidden = true;
+$('bwMail').onclick = ()=>{ if (!ansageBereit() || !bwDatumOk()) return; $('bwMsg').hidden = true; ansageSpeichern();
   location.href = 'mailto:' + encodeURIComponent(v('email')).replace('%40','@') + '?subject=' + encodeURIComponent(bewerberinBetreff()) + '&body=' + encodeURIComponent(bewerberinText()); };
 $('bwCopy').onclick = async ()=>{ if (!ansageBereit() || !bwDatumOk()) return;
   try { await kopiere(bewerberinText()); $('bwMsg').textContent = 'Text kopiert. Fügen Sie ihn in Ihr Mail ein.'; }
