@@ -41,6 +41,8 @@ header img{width:72px;height:72px}
 header .t{display:flex;flex-direction:column}
 header .t b{font-size:1.55rem;line-height:1.2}
 header .t span{color:var(--muted);font-size:.9rem}
+header .t{min-width:0}
+@media (max-width:400px){header{gap:10px} header img{width:52px;height:52px} header .t b{font-size:clamp(1.05rem,6.2vw,1.4rem)} header .t span{font-size:.78rem}}
 .progress{margin-block:18px 6px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
 .stepinfo{color:var(--muted);font-size:.85rem;letter-spacing:.04em;text-transform:uppercase}
@@ -1213,6 +1215,15 @@ try { const s = localStorage.getItem('aaab_lang'); if (s && LANGNAMES[s]) startL
 let urlLang = null;
 try { urlLang = new URLSearchParams(location.search).get('lang'); } catch(e){}
 setLang(urlLang && LANGNAMES[urlLang] ? urlLang : startLang);
+/* ---------- Eingebettet auf aaab.ch: Höhe melden, bei Seitenwechsel nach oben ---------- */
+if (window.parent !== window) {
+  let letzte = 0;
+  const hoehe = () => { const h = Math.ceil(document.documentElement.scrollHeight); if (Math.abs(h - letzte) > 2) { letzte = h; parent.postMessage({ aaabHoehe: h }, '*'); } };
+  try { new ResizeObserver(hoehe).observe(document.body); } catch(e){ setInterval(hoehe, 800); }
+  window.addEventListener('load', hoehe);
+  const scrollOrig = window.scrollTo.bind(window);
+  window.scrollTo = function(a, b){ scrollOrig(a, b); const top = (a && typeof a === 'object') ? a.top : b; if (!top) parent.postMessage({ aaabOben: true }, '*'); };
+}
 /* ---------- Vorausfüllen aus dem Bewertungsbogen Probetag ---------- */
 /* ?vorname=..&nachname=..&email=..&tel=%2B41791234567 */
 try {
