@@ -316,6 +316,13 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
 
     <div class="sub" data-if="partner" hidden>
       <h1 style="font-size:1.2rem">Angaben Partner/in</h1>
+      <div class="infobox partnerinfo">
+        <p><b>Warum fragen wir das?</b></p>
+        <ul>
+          <li data-if="qstEhe" hidden>Bei Ehe oder eingetragener Partnerschaft hängt Ihr Quellensteuer-Tarif davon ab, ob Ihr Partner oder Ihre Partnerin auch ein Einkommen hat.</li>
+          <li>Für jedes Kind gibt es die Kinderzulage nur einmal. Arbeiten beide Eltern, klären wir, wer sie bekommt.</li>
+        </ul>
+      </div>
       <div class="row">
         <div class="f"><label class="req" for="p_vorname">Vorname</label><input type="text" id="p_vorname" name="p_vorname" required></div>
         <div class="f"><label class="req" for="p_nachname">Nachname</label><input type="text" id="p_nachname" name="p_nachname" required></div>
@@ -598,6 +605,7 @@ const v = n => { const el = form.elements[n]; if (!el) return ''; return (el.val
 /* ---------- Bedingungen ---------- */
 const rules = {
   natCH: () => v('nat_land') === 'CH',
+  qstEhe: () => rules.quellensteuer() && ['verheiratet','eingetragene Partnerschaft'].includes(v('zivilstand')),
   quellensteuer: () => !!v('nat_land') && v('nat_land') !== 'CH' && v('bewilligung') !== 'C',
   natAndere: () => !!v('nat_land') && v('nat_land') !== 'CH',
   bewG: () => v('nat_land') === 'IT',
