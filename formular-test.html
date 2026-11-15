@@ -150,6 +150,9 @@ ul.docs{margin:0;padding-left:20px;display:grid;gap:4px}
 .addfoto{position:relative;display:inline-flex;align-items:center;min-height:48px;padding:0 16px;border-radius:10px;border:1.5px dashed var(--accent);color:var(--accent);font-weight:700;cursor:pointer;background:var(--card)}
 .addfoto input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .openbox{margin:0 0 6px;padding:10px 12px;border-radius:8px;background:var(--warn-bg);color:var(--warn);font-weight:700;border:1.5px solid var(--warn)}
+.opt .relhint{display:block;font-size:.85em;color:var(--muted);font-weight:400;line-height:1.3}
+.opt span:has(.relhint){flex-direction:column;align-items:flex-start;justify-content:center;padding-top:8px;padding-bottom:8px}
+.opt input:checked + span .relhint{color:inherit;opacity:.85}
 .infobox{background:var(--soft);border-radius:10px;padding:12px 14px;display:grid;gap:8px;font-size:.95rem;line-height:1.45}
 .infobox p{margin:0}
 .testbanner{margin:14px 0 0;padding:8px 12px;border-radius:8px;background:var(--soft);color:var(--accent);font-weight:700;font-size:.9rem}
@@ -423,18 +426,13 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
     </div>
     <div style="display:grid;gap:18px;margin-top:8px">
       <h1 style="font-size:1.2rem;margin-bottom:-8px">Konfession</h1>
-      <div class="infobox" data-if="quellensteuer" hidden>
-        <p><b>Warum fragen wir nach Ihrer Religion?</b></p>
-        <p>Wir brauchen diese Angabe, um Ihre Quellensteuer richtig zu berechnen. In der Schweiz wird die Kirchensteuer direkt vom Lohn abgezogen.</p>
-        <p>Kirchensteuer zahlen nur Mitglieder der evangelisch-reformierten, der römisch-katholischen und der christkatholischen Kirche. Wenn Sie konfessionslos sind oder einer anderen Religion angehören, zahlen Sie keine Kirchensteuer. Das gilt zum Beispiel für den Islam, die orthodoxe Kirche oder den Hinduismus. So bleibt Ihnen jeden Monat mehr Nettolohn.</p>
-        <p>Bitte wählen Sie die Antwort, die für Sie stimmt. Ohne diese Angabe darf AAAB nur den höheren Tarif mit Kirchensteuer anwenden.</p>
-      </div>
+      <p class="hint" data-if="quellensteuer" hidden style="margin-bottom:-6px">Wir brauchen diese Angabe für die Quellensteuer. In der Schweiz wird die Kirchensteuer direkt vom Lohn abgezogen. Sie gilt nur für die reformierte, die römisch-katholische und die christkatholische Kirche. Für alle anderen Religionen und ohne Religion fällt keine Kirchensteuer an.</p>
       <fieldset class="f"><legend class="req">Religion</legend><div class="opts col">
-        <label class="opt"><input type="radio" name="religion" value="evangelisch-reformiert" required><span>evangelisch-reformiert</span></label>
+        <label class="opt"><input type="radio" name="religion" value="evangelisch-reformiert" required><span>evangelisch-reformiert <small class="relhint">(Schweizer reformierte Kirche)</small></span></label>
         <label class="opt"><input type="radio" name="religion" value="römisch-katholisch"><span>römisch-katholisch</span></label>
-        <label class="opt"><input type="radio" name="religion" value="christkatholisch"><span>christkatholisch</span></label>
-        <label class="opt"><input type="radio" name="religion" value="andere"><span>andere</span></label>
-        <label class="opt"><input type="radio" name="religion" value="konfessionslos"><span>konfessionslos</span></label>
+        <label class="opt"><input type="radio" name="religion" value="christkatholisch"><span>christkatholisch <small class="relhint">(altkatholisch)</small></span></label>
+        <label class="opt"><input type="radio" name="religion" value="andere"><span>andere <small class="relhint">(z. B. orthodox, muslimisch, jüdisch, hinduistisch)</small></span></label>
+        <label class="opt"><input type="radio" name="religion" value="konfessionslos"><span>konfessionslos <small class="relhint">(keine Religion)</small></span></label>
       </div></fieldset>
     </div>
   </section>
