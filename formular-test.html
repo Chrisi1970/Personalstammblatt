@@ -426,13 +426,13 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
     </div>
     <div style="display:grid;gap:18px;margin-top:8px">
       <h1 style="font-size:1.2rem;margin-bottom:-8px">Konfession</h1>
-      <p class="hint" data-if="quellensteuer" hidden style="margin-bottom:-6px">Wir brauchen diese Angabe für die Quellensteuer. In der Schweiz wird die Kirchensteuer direkt vom Lohn abgezogen. Sie gilt nur für die reformierte, die römisch-katholische und die christkatholische Kirche. Für alle anderen Religionen und ohne Religion fällt keine Kirchensteuer an.</p>
+      <p class="hint" data-if="quellensteuer" hidden style="margin-bottom:-6px">Für Mitarbeitende mit Ausweis L, B, G, F oder S oder mit Meldebestätigung ziehen wir die Quellensteuer direkt vom Lohn ab. Damit wir sie korrekt berechnen, brauchen wir Ihre Religion. Mitglieder der reformierten, der römisch-katholischen und der altkatholischen Kirche zahlen in der Schweiz zusätzlich Kirchensteuer. Für alle anderen Religionen und ohne Religion fällt keine Kirchensteuer an.</p>
       <fieldset class="f"><legend class="req">Religion</legend><div class="opts col">
-        <label class="opt"><input type="radio" name="religion" value="evangelisch-reformiert" required><span>evangelisch-reformiert <small class="relhint">(Schweizer reformierte Kirche)</small></span></label>
+        <label class="opt"><input type="radio" name="religion" value="evangelisch-reformiert" required><span>reformiert<small class="relhint">(evangelisch, protestantisch)</small></span></label>
         <label class="opt"><input type="radio" name="religion" value="römisch-katholisch"><span>römisch-katholisch</span></label>
-        <label class="opt"><input type="radio" name="religion" value="christkatholisch"><span>christkatholisch <small class="relhint">(altkatholisch)</small></span></label>
-        <label class="opt"><input type="radio" name="religion" value="andere"><span>andere <small class="relhint">(z. B. orthodox, muslimisch, jüdisch, hinduistisch)</small></span></label>
-        <label class="opt"><input type="radio" name="religion" value="konfessionslos"><span>konfessionslos <small class="relhint">(keine Religion)</small></span></label>
+        <label class="opt"><input type="radio" name="religion" value="christkatholisch"><span>altkatholisch<small class="relhint">(Christkatholische Kirche der Schweiz)</small></span></label>
+        <label class="opt"><input type="radio" name="religion" value="andere"><span>andere Religion<small class="relhint">(z. B. orthodox, muslimisch, jüdisch, hinduistisch)</small></span></label>
+        <label class="opt"><input type="radio" name="religion" value="konfessionslos"><span>keine Religion<small class="relhint">(konfessionslos)</small></span></label>
       </div></fieldset>
     </div>
   </section>
