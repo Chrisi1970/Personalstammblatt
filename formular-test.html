@@ -347,7 +347,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
         <label class="check"><input type="checkbox" id="p_gleiche_adresse" name="p_gleiche_adresse" value="ja" checked><span>Wohnt an meiner Adresse</span></label>
         <div class="f" data-if="pAdresse" hidden><label class="req" for="p_adresse">Adresse (Strasse, Nr., PLZ, Ort)</label><input type="text" id="p_adresse" name="p_adresse" required></div>
       </div>
-      <div class="f" data-if="pWohntAusland" hidden><label class="req" for="p_adresse_ausland">Wo genau? (Strasse, Nr., PLZ, Ort, Land)</label><input type="text" id="p_adresse_ausland" name="p_adresse_ausland" required></div>
+      <div class="f" data-if="pWohntAusland" hidden><label class="req" for="p_adresse_ausland">Ort und Land</label><input type="text" id="p_adresse_ausland" name="p_adresse_ausland" required placeholder="z. B. Madrid, Spanien"></div>
       <div class="f"><label class="req" for="p_nat_land">Nationalität</label>
         <select id="p_nat_land" name="p_nat_land" class="notr" data-countries required></select></div>
       <div class="f" data-if="pNatCH" hidden><label class="req" for="p_buergerort">Bürgerort</label><input type="text" id="p_buergerort" name="p_buergerort" required></div>
@@ -368,7 +368,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
         <label class="opt"><input type="radio" name="p_ahv_vorhanden" value="ja" required><span>Ja</span></label>
         <label class="opt"><input type="radio" name="p_ahv_vorhanden" value="nein"><span>Nein</span></label>
       </div></fieldset>
-      <div class="f" data-if="pAhv" hidden><label class="req" for="p_ahv">AHV-Nummer Partner/in</label><input type="text" id="p_ahv" name="p_ahv" required inputmode="numeric" placeholder="756.1234.5678.97" data-check="ahv"></div>
+      <div class="f" data-if="pAhv" hidden><label for="p_ahv">AHV-Nummer Partner/in</label><input type="text" id="p_ahv" name="p_ahv" inputmode="numeric" placeholder="756.1234.5678.97" data-check="ahv"><span class="hint">Haben Sie die Nummer gerade nicht zur Hand? Dann lassen Sie das Feld leer. Sie können sie später nachreichen.</span></div>
       <fieldset class="f"><legend class="req">Arbeitet Ihr Partner oder Ihre Partnerin?</legend><div class="opts">
         <label class="opt"><input type="radio" name="p_arbeitet" value="ja" required><span>Ja</span></label>
         <label class="opt"><input type="radio" name="p_arbeitet" value="nein"><span>Nein</span></label>
@@ -753,6 +753,7 @@ function offenePunkte(){
   if (rules.bewKeine()) o.push('Aufenthaltsbewilligung');
   if (typeof uploads !== 'undefined' && cur === steps.length - 1) o.push(...fotoOffen());
   if (rules.partner() && rules.pNatAndere() && v('p_wohnt_ch') !== 'nein' && v('p_bewilligung') === 'noch keine') o.push('Aufenthaltsbewilligung Partner/in');
+  if (rules.partner() && rules.pAhv() && !v('p_ahv')) o.push('AHV-Nummer Partner/in');
   return o;
 }
 function collect(L, keepEmpty){
