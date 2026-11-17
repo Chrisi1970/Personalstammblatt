@@ -240,7 +240,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
     </div>
     <div class="f"><label class="req" for="strasse">Strasse und Nr.</label><input type="text" id="strasse" name="strasse" required autocomplete="street-address"></div>
     <div class="row plz">
-      <div class="f"><label class="req" for="plz">PLZ</label><input type="text" id="plz" name="plz" inputmode="numeric" maxlength="4" required autocomplete="postal-code"></div>
+      <div class="f"><label class="req" for="plz">PLZ</label><input type="text" id="plz" name="plz" inputmode="numeric" maxlength="6" required autocomplete="postal-code"></div>
       <div class="f"><label class="req" for="ort">Ort</label><input type="text" id="ort" name="ort" required autocomplete="address-level2"></div>
     </div>
     <div class="plzbox" id="plzBox" hidden>
@@ -1090,7 +1090,7 @@ $('sendBtn').onclick = async () => {
 function plzVorschlag(){
   const z = $('plz').value.replace(/\D/g,''), box = $('plzBox'), wrap = $('plzOrte');
   wrap.innerHTML = ''; box.hidden = true; $('plzWarn').hidden = true;
-  if (z.length !== 4) return;
+  if (z.length !== 4){ if ($('ort').dataset.auto === '1'){ $('ort').value = ''; $('ort').dataset.auto = '0'; } return; } /* 5 oder 6 Ziffern: Ausland, ohne Prüfung */
   const orte = PLZ[z];
   if (!orte){ $('plzWarn').hidden = false; return; }
   if (orte.length === 1 && (!$('ort').value.trim() || $('ort').dataset.auto === '1')){ $('ort').value = orte[0]; $('ort').dataset.auto = '1'; }
