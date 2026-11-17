@@ -379,8 +379,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
       </div></fieldset>
       <div class="f" data-if="pArbeitet" hidden><label class="req" for="p_firma">Arbeitgeber</label><input type="text" id="p_firma" name="p_firma" required></div>
       <div class="f" data-if="pArbeitet" hidden><label class="req" for="p_firma_ort">PLZ und Ort der Firma</label><input type="text" id="p_firma_ort" name="p_firma_ort" required></div>
-      <p class="hint" data-if="pDokHinweisNormal" hidden>Auf der letzten Seite laden Sie die Kopien zu Ihrem Partner oder Ihrer Partnerin hoch. Diese Kopien sind Pflicht.</p>
-      <p class="openbox" data-if="pDokAlv" style="font-weight:400" hidden>Wichtig. Laden Sie auf der letzten Seite die Bescheinigung der Arbeitslosenkasse hoch. Diese Bescheinigung und alle weiteren Kopien zu Ihrem Partner oder Ihrer Partnerin sind Pflicht.</p>
+      <p class="hint" data-if="pDokId" hidden>Auf der letzten Seite laden Sie eine Kopie der ID oder des Passes Ihres Partners oder Ihrer Partnerin hoch. Diese Kopie ist Pflicht.</p>
     </div>
   </section>
 
@@ -926,9 +925,7 @@ const SLOTS = [
   { id: 'bewilligung', label: 'Aufenthaltsbewilligung (wenn vorhanden)', hint: 'Vorder- und Rückseite.' },
   { id: 'bank', label: 'Bank- oder Postkarte (Vorder- und Rückseite)', hint: '' },
   { id: 'ahv', label: 'AHV-Ausweis oder Krankenkassenkarte', hint: '' },
-  { id: 'pbew', label: 'Aufenthaltsbewilligung Partner/in', hint: 'Pflicht. Vorder- und Rückseite.', show: () => rules.pDokBew() },
-  { id: 'pid', label: 'ID oder Pass Partner/in', hint: 'Pflicht. Bei der ID-Karte Vorder- und Rückseite.', show: () => rules.pDokId() },
-  { id: 'palv', label: 'Arbeitslosenbescheinigung Partner/in', hint: 'Pflicht. Bescheinigung der Arbeitslosenkasse.', show: () => rules.pDokAlv() }
+  { id: 'pid', label: 'ID oder Pass Partner/in', hint: 'Pflicht. Bei der ID-Karte Vorder- und Rückseite.', show: () => rules.pDokId() }
 ];
 const slotAktiv = sl => !sl.show || sl.show();
 function pflichtFehlt(){ return SLOTS.filter(sl => sl.show && sl.show() && !uploads[sl.id].length); }
