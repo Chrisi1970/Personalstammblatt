@@ -77,8 +77,8 @@ input:focus,select:focus,button:focus-visible,.opt input:focus-visible+span{outl
 .f.bad .opt span{border-color:var(--err)}
 .sub{border-left:3px solid var(--soft);padding-left:14px;display:grid;gap:18px}
 .box{background:var(--soft);border-radius:10px;padding:14px;display:grid;gap:8px}
-.kid{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:14px}
-.kid h3{margin:0;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center}
+.kid,.job{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:14px}
+.kid h3,.job h3{margin:0;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center}
 .btn{font:inherit;font-weight:700;border-radius:10px;min-height:48px;padding:0 20px;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
 .btn.ghost{background:transparent;color:var(--accent)}
 .btn.small{min-height:38px;padding:0 12px;font-size:.9rem}
@@ -283,7 +283,6 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
       <p class="hint" data-if="bewKeine" hidden>Schicken Sie uns die Bewilligung bitte, sobald Sie sie erhalten haben.</p>
       <div class="f" data-if="bewG" hidden><label for="it_steuer">Italienische Steuernummer (Codice fiscale)</label><input type="text" id="it_steuer" name="it_steuer" autocapitalize="characters"><span class="hint">Für Grenzgängerinnen und Grenzgänger aus Italien.</span></div>
     </div>
-    <div class="f" data-if="ausweisAblauf"><label class="req" for="ausweis_ablauf">Ablaufdatum ID oder Pass</label><input type="date" id="ausweis_ablauf" name="ausweis_ablauf" required></div>
     <div class="f" data-if="passAblauf" hidden><label class="req" for="pass_ablauf">Ablaufdatum Pass</label><input type="date" id="pass_ablauf" name="pass_ablauf" required><span class="hint">Bitte laden Sie am Schluss ein Foto davon hoch.</span></div>
     <fieldset class="f"><legend class="req">Haben Sie eine AHV-Nummer?</legend><div class="opts">
       <label class="opt"><input type="radio" name="ahv_vorhanden" value="ja" required><span>Ja</span></label>
@@ -439,13 +438,34 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
       <label class="opt"><input type="radio" name="nebenjob" value="nein"><span>Nein</span></label>
     </div></fieldset>
     <div class="sub" data-if="nebenjob" hidden>
-      <div class="f"><label class="req" for="nj_firma">Name / Firma</label><input type="text" id="nj_firma" name="nj_firma" required></div>
-      <div class="f"><label class="req" for="nj_strasse">Strasse und Nr.</label><input type="text" id="nj_strasse" name="nj_strasse" required></div>
-      <div class="f"><label class="req" for="nj_plzort">PLZ und Ort</label><input type="text" id="nj_plzort" name="nj_plzort" required></div>
-      <div class="f"><label class="req" for="nj_taetigkeit">Tätigkeit</label><input type="text" id="nj_taetigkeit" name="nj_taetigkeit" required></div>
-      <div class="f"><label class="req" for="nj_seit">Seit wann arbeiten Sie dort?</label><input type="date" id="nj_seit" name="nj_seit" required></div>
-      <div class="f"><label class="req" for="nj_stunden">Stunden pro Woche</label><input type="number" id="nj_stunden" name="nj_stunden" min="0" max="60" inputmode="decimal" required></div>
-      <div class="f"><label class="req" for="nj_zeiten">Arbeitszeiten</label><input type="text" id="nj_zeiten" name="nj_zeiten" required></div>
+      <div class="job" data-n="1">
+        <h3><span>Arbeitsstelle 1</span></h3>
+        <div class="f"><label class="req" for="nj_firma">Name / Firma</label><input type="text" id="nj_firma" name="nj_firma" required></div>
+        <div class="f"><label class="req" for="nj_ort">Ort der Tätigkeit</label><input type="text" id="nj_ort" name="nj_ort" required placeholder="z. B. Zürich"></div>
+        <div class="f"><label class="req" for="nj_taetigkeit">Tätigkeit</label><input type="text" id="nj_taetigkeit" name="nj_taetigkeit" required></div>
+        <div class="f"><label class="req" for="nj_seit">Seit wann arbeiten Sie dort?</label><input type="date" id="nj_seit" name="nj_seit" required></div>
+        <div class="f"><label class="req" for="nj_stunden">Stunden pro Woche</label><input type="number" id="nj_stunden" name="nj_stunden" min="0" max="60" inputmode="decimal" required></div>
+        <div class="f"><label class="req" for="nj_zeiten">Arbeitszeiten</label><input type="text" id="nj_zeiten" name="nj_zeiten" required></div>
+      </div>
+      <div class="job" data-n="2" data-if="nj2" hidden>
+        <h3><span>Arbeitsstelle 2</span><button type="button" class="btn ghost small" data-njweg="2">Entfernen</button></h3>
+        <div class="f"><label class="req" for="nj2_firma">Name / Firma</label><input type="text" id="nj2_firma" name="nj2_firma" required></div>
+        <div class="f"><label class="req" for="nj2_ort">Ort der Tätigkeit</label><input type="text" id="nj2_ort" name="nj2_ort" required placeholder="z. B. Zürich"></div>
+        <div class="f"><label class="req" for="nj2_taetigkeit">Tätigkeit</label><input type="text" id="nj2_taetigkeit" name="nj2_taetigkeit" required></div>
+        <div class="f"><label class="req" for="nj2_seit">Seit wann arbeiten Sie dort?</label><input type="date" id="nj2_seit" name="nj2_seit" required></div>
+        <div class="f"><label class="req" for="nj2_stunden">Stunden pro Woche</label><input type="number" id="nj2_stunden" name="nj2_stunden" min="0" max="60" inputmode="decimal" required></div>
+        <div class="f"><label class="req" for="nj2_zeiten">Arbeitszeiten</label><input type="text" id="nj2_zeiten" name="nj2_zeiten" required></div>
+      </div>
+      <div class="job" data-n="3" data-if="nj3" hidden>
+        <h3><span>Arbeitsstelle 3</span><button type="button" class="btn ghost small" data-njweg="3">Entfernen</button></h3>
+        <div class="f"><label class="req" for="nj3_firma">Name / Firma</label><input type="text" id="nj3_firma" name="nj3_firma" required></div>
+        <div class="f"><label class="req" for="nj3_ort">Ort der Tätigkeit</label><input type="text" id="nj3_ort" name="nj3_ort" required placeholder="z. B. Zürich"></div>
+        <div class="f"><label class="req" for="nj3_taetigkeit">Tätigkeit</label><input type="text" id="nj3_taetigkeit" name="nj3_taetigkeit" required></div>
+        <div class="f"><label class="req" for="nj3_seit">Seit wann arbeiten Sie dort?</label><input type="date" id="nj3_seit" name="nj3_seit" required></div>
+        <div class="f"><label class="req" for="nj3_stunden">Stunden pro Woche</label><input type="number" id="nj3_stunden" name="nj3_stunden" min="0" max="60" inputmode="decimal" required></div>
+        <div class="f"><label class="req" for="nj3_zeiten">Arbeitszeiten</label><input type="text" id="nj3_zeiten" name="nj3_zeiten" required></div>
+      </div>
+      <button type="button" class="btn ghost" id="addJob" data-if="njPlus" hidden>+ Weitere Arbeitsstelle hinzufügen</button>
       <p class="hint">Änderungen beim Nebenjob melden Sie bitte immer schriftlich an mitarbeiter@aaab.ch.</p>
     </div>
     <div style="display:grid;gap:18px;margin-top:8px">
@@ -620,7 +640,7 @@ const rules = {
   bewG: () => v('nat_land') === 'IT',
   passAblauf: () => rules.natAndere() && ['G','L','S','F'].includes(v('bewilligung')),
   ausweisAblauf: () => !(rules.natAndere() && ['B','C','G','L','S','F'].includes(v('bewilligung'))),
-  bewAblauf: () => rules.natAndere() && v('bewilligung') && v('bewilligung') !== 'noch keine',
+  bewAblauf: () => rules.natAndere() && v('bewilligung') && !['noch keine','Meldebestätigung'].includes(v('bewilligung')),
   bewDatum: () => rules.bewAblauf() && !$('bew_abgelaufen').checked,
   pBewDatum: () => rules.pBewAblauf() && !$('p_bew_abgelaufen').checked,
   bewKeine: () => rules.natAndere() && v('bewilligung') === 'noch keine',
@@ -645,16 +665,20 @@ const rules = {
   pBewFrage: () => v('p_wohnt_ch') !== 'nein',
   pNatCH: () => v('p_nat_land') === 'CH',
   pNatAndere: () => !!v('p_nat_land') && v('p_nat_land') !== 'CH',
-  pBewAblauf: () => rules.pNatAndere() && v('p_wohnt_ch') !== 'nein' && v('p_bewilligung') && !['keine','noch keine'].includes(v('p_bewilligung')),
+  pBewAblauf: () => rules.pNatAndere() && v('p_wohnt_ch') !== 'nein' && v('p_bewilligung') && !['keine','noch keine','Meldebestätigung'].includes(v('p_bewilligung')),
   pArbeitet: () => v('p_arbeitet') === 'ja',
   kinder: () => v('hat_kinder') === 'ja',
   kz: () => v('kz') === 'ja',
   nebenjob: () => v('nebenjob') === 'ja',
+  nj2: () => rules.nebenjob() && njAnzahl >= 2,
+  nj3: () => rules.nebenjob() && njAnzahl >= 3,
+  njPlus: () => rules.nebenjob() && njAnzahl < 3,
   qst: () => rules.natAndere() && v('bewilligung') !== 'C',
   mutterAndere: () => v('muttersprache') === 'andere',
   kirche: () => ['evangelisch-reformiert','römisch-katholisch','christkatholisch'].includes(v('religion')),
   kirchensteuer: () => rules.kirche() && v('kirchensteuer') === 'ja',
 };
+let njAnzahl = 1;
 function applyRules(){
   document.querySelectorAll('[data-if]').forEach(el => { el.hidden = !rules[el.dataset.if](); });
   document.querySelectorAll('.kid').forEach(k => {
@@ -769,12 +793,14 @@ function collect(L, keepEmpty){
   const out = [];
   steps.slice(1, steps.length - 1).forEach((s, idx) => {
     const sec = { title: tl(s.dataset.title, L), rows: [], step: idx + 1 };
-    let inKid = false;
-    s.querySelectorAll('.f, .kid h3, .check').forEach(f => {
+    let inKid = false, isJobPrev = false;
+    s.querySelectorAll('.f, .kid h3, .job h3, .check').forEach(f => {
       if (!shown(f)) return;
-      const isKid = !!f.closest('.kid');
-      if (inKid && !isKid) sec.rows.push({ head: tl('Kinderzulagen', L), end: true });
-      inKid = isKid;
+      const isJob = !!f.closest('.job');
+      const isKid = !!f.closest('.kid') || isJob;
+      if (inKid && !isKid) sec.rows.push(isJobPrev ? { head: tl('Konfession', L), end: true } : { head: tl('Kinderzulagen', L), end: true });
+      inKid = isKid; isJobPrev = isJob;
+      if (f.matches('.job h3')) { sec.rows.push({ head: tl('Arbeitsstelle', L) + ' ' + f.closest('.job').dataset.n }); return; }
       if (f.matches('.kid h3')) { sec.rows.push({ head: tl('Kind', L) + ' ' + f.closest('.kid').dataset.n }); return; }
       if (f.matches('label.check') && f.querySelector('#bew_abgelaufen, #p_bew_abgelaufen')) { if (shown(f) && f.querySelector('input').checked) sec.rows.push({ k: tl('Bewilligung gültig bis', L), v: tl('abgelaufen', L), open: true }); return; }
       if (f.matches('label.check')) { if (f.querySelector('#p_gleiche_adresse') && shown(f) && $('p_gleiche_adresse').checked) sec.rows.push({ k: tl('Adresse Partner/in', L), v: tl('gleich wie Mitarbeiter/in', L) }); return; }
@@ -1242,6 +1268,15 @@ if (window.parent !== window) {
 function heuteISO(){ const h = new Date(); return h.getFullYear() + '-' + String(h.getMonth()+1).padStart(2,'0') + '-' + String(h.getDate()).padStart(2,'0'); }
 try { $('bew_ablauf').min = heuteISO(); $('p_bew_ablauf').min = heuteISO(); } catch(e){}
 try { const h = new Date(); $('probetag_datum').max = h.getFullYear() + '-' + String(h.getMonth()+1).padStart(2,'0') + '-' + String(h.getDate()).padStart(2,'0'); } catch(e){}
+/* ---------- Weitere Arbeitsstellen ---------- */
+$('addJob').onclick = () => { if (njAnzahl < 3) { njAnzahl++; applyRules(); const neu = document.querySelector('.job[data-n="' + njAnzahl + '"]'); if (neu) neu.scrollIntoView({ behavior: 'smooth', block: 'start' }); } };
+document.querySelectorAll('[data-njweg]').forEach(b => b.onclick = () => {
+  const n = +b.dataset.njweg;
+  const ids = i => ['firma','ort','taetigkeit','seit','stunden','zeiten'].map(k => (i === 1 ? 'nj_' : 'nj' + i + '_') + k);
+  for (let i = n; i < njAnzahl; i++) { const a = ids(i), c = ids(i + 1); a.forEach((id, j) => { $(id).value = $(c[j]).value; }); }
+  ids(njAnzahl).forEach(id => { $(id).value = ''; });
+  njAnzahl--; applyRules();
+});
 /* ---------- Vorausfüllen aus dem Bewertungsbogen Probetag ---------- */
 /* ?vorname=..&nachname=..&email=..&tel=%2B41791234567 */
 try {
