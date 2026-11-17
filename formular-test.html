@@ -521,7 +521,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
       <h2 class="uph">Fotos Ihrer Dokumente</h2>
       <p class="hint">Fotografieren Sie die Dokumente mit dem Handy oder wählen Sie ein vorhandenes Bild aus. Achten Sie darauf, dass alles gut lesbar ist.</p>
       <div id="upSlots"></div>
-      <p class="hint plzwarn" id="pflichtErr" hidden>Bitte laden Sie alle Kopien hoch, die mit «Pflicht» markiert sind.</p>
+      <p class="hint plzwarn" id="pflichtErr" hidden>Bitte laden Sie bei jeder Kopie ein Foto hoch oder kreuzen Sie «Foto wird nachgeliefert» an. Kopien mit «Pflicht» brauchen immer ein Foto.</p>
     </div>
     <div class="f"><label class="check"><input type="checkbox" id="ok_wahr" name="ok_wahr" required><span class="req">Meine Angaben sind vollständig und wahr.</span></label></div>
     <div class="f"><label class="check"><input type="checkbox" id="ok_meldung" name="ok_meldung" required><span class="req">Änderungen melde ich schriftlich an mitarbeiter@aaab.ch.</span></label></div>
@@ -933,6 +933,8 @@ const SLOTS = [
 const slotAktiv = sl => !sl.show || sl.show();
 function pflichtFehlt(){ return SLOTS.filter(sl => sl.show && sl.show() && !uploads[sl.id].length); }
 const uploads = {}; SLOTS.forEach(sl => uploads[sl.id] = []);
+const nachliefern = {};
+function fotoFehlt(){ return SLOTS.filter(sl => !sl.show && !uploads[sl.id].length && !nachliefern[sl.id]); }
 async function verkleinern(file){
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return { blob: file, type: file.type || 'application/octet-stream' };
   try {
@@ -972,7 +974,15 @@ function renderSlots(){
       const sp = document.createElement('span'); sp.textContent = uploads[sl.id].length ? t('+ Weiteres Foto') : t('+ Foto aufnehmen oder auswählen');
       lab.append(inp, sp); row.appendChild(lab);
     }
-    d.appendChild(row); box.appendChild(d);
+    d.appendChild(row);
+    if (!sl.show && !uploads[sl.id].length){
+      const cl = document.createElement('label'); cl.className = 'check';
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'spaeter_' + sl.id; cb.checked = !!nachliefern[sl.id];
+      cb.onchange = () => { nachliefern[sl.id] = cb.checked; $('pflichtErr').hidden = true; renderSummary(); };
+      const cs = document.createElement('span'); cs.textContent = t('Foto wird nachgeliefert');
+      cl.append(cb, cs); d.appendChild(cl);
+    }
+    box.appendChild(d);
   });
 }
 function fotoOffen(){
@@ -1054,7 +1064,7 @@ let gesendet = false;
 $('sendBtn').onclick = async () => {
   if (gesendet) return;
   if (!TESTMODUS && !validateStep(cur)) return;
-  if (!TESTMODUS && pflichtFehlt().length){ $('pflichtErr').hidden = false; $('upSlots').scrollIntoView({behavior:'smooth', block:'center'}); return; }
+  if (!TESTMODUS && (pflichtFehlt().length || fotoFehlt().length)){ $('pflichtErr').hidden = false; $('upSlots').scrollIntoView({behavior:'smooth', block:'center'}); return; }
   $('pflichtErr').hidden = true;
   const btn = $('sendBtn');
   $('sendDone').hidden = true; $('sendErr').hidden = true;
