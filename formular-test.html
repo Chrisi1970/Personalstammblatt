@@ -652,7 +652,7 @@ const rules = {
   ahv: () => v('ahv_vorhanden') === 'ja',
   ahvNein: () => v('ahv_vorhanden') === 'Nein, noch nicht',
   partnerDok: () => ['verheiratet','eingetragene Partnerschaft','Konkubinat'].includes(v('zivilstand')),
-  pAhvPflicht: () => rules.partnerDok() && rules.pNatAndere(),
+  pAhvPflicht: () => false, /* Frage Ja/Nein immer stellen */
   pAhvFrage: () => !rules.pAhvPflicht(),
   pAhv: () => rules.pAhvPflicht() || v('p_ahv_vorhanden') === 'ja',
   pDokBew: () => rules.partnerDok() && rules.pNatAndere(),
