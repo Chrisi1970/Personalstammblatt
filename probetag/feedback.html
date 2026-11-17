@@ -2917,7 +2917,7 @@ $('shCopy').onclick = async ()=>{ if (!ansageBereit()) return;
 /* Hotels zum Antippen, passend zum gewählten Standort */
 function hotelKnoepfe(){
   const st = radio('standort');
-  const liste = HOTELS.filter(h => !st || h.standort.includes(st));
+  const liste = st ? HOTELS.filter(h => h.standort.includes(st)) : [];
   $('hwahl').innerHTML = '';
   liste.forEach(h => {
     const b = document.createElement('button'); b.type = 'button'; b.textContent = h.name;
