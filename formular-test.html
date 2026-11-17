@@ -278,7 +278,8 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
         <label class="opt"><input type="radio" name="bewilligung" value="Meldebestätigung"><span>Meldebestätigung</span></label>
         <label class="opt"><input type="radio" name="bewilligung" value="noch keine"><span>noch keine</span></label>
       </div></fieldset>
-      <div class="f" data-if="bewAblauf" hidden><label class="req" for="bew_ablauf">Bewilligung gültig bis</label><input type="date" id="bew_ablauf" name="bew_ablauf" required><span class="hint">Bitte laden Sie am Schluss ein Foto davon hoch.</span></div>
+      <div class="f" data-if="bewDatum" hidden><label class="req" for="bew_ablauf">Bewilligung gültig bis</label><input type="date" id="bew_ablauf" name="bew_ablauf" required><span class="hint">Bitte laden Sie am Schluss ein Foto davon hoch.</span></div>
+      <label class="check" data-if="bewAblauf" hidden><input type="checkbox" id="bew_abgelaufen" name="bew_abgelaufen" value="ja"><span>Bewilligung ist abgelaufen</span></label>
       <p class="hint" data-if="bewKeine" hidden>Schicken Sie uns die Bewilligung bitte, sobald Sie sie erhalten haben.</p>
       <div class="f" data-if="bewG" hidden><label for="it_steuer">Italienische Steuernummer (Codice fiscale)</label><input type="text" id="it_steuer" name="it_steuer" autocapitalize="characters"><span class="hint">Für Grenzgängerinnen und Grenzgänger aus Italien.</span></div>
     </div>
@@ -362,7 +363,8 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
           <label class="opt"><input type="radio" name="p_bewilligung" value="Meldebestätigung"><span>Meldebestätigung</span></label>
           <label class="opt"><input type="radio" name="p_bewilligung" value="noch keine"><span>noch keine</span></label>
         </div></fieldset>
-        <div class="f" data-if="pBewAblauf" hidden><label class="req" for="p_bew_ablauf">Bewilligung gültig bis</label><input type="date" id="p_bew_ablauf" name="p_bew_ablauf" required></div>
+        <div class="f" data-if="pBewDatum" hidden><label class="req" for="p_bew_ablauf">Bewilligung gültig bis</label><input type="date" id="p_bew_ablauf" name="p_bew_ablauf" required></div>
+        <label class="check" data-if="pBewAblauf" hidden><input type="checkbox" id="p_bew_abgelaufen" name="p_bew_abgelaufen" value="ja"><span>Bewilligung ist abgelaufen</span></label>
       </div>
       <fieldset class="f" data-if="pAhvFrage" hidden><legend class="req">Hat Ihr Partner oder Ihre Partnerin eine AHV-Nummer?</legend><div class="opts">
         <label class="opt"><input type="radio" name="p_ahv_vorhanden" value="ja" required><span>Ja</span></label>
@@ -617,6 +619,8 @@ const rules = {
   passAblauf: () => rules.natAndere() && ['G','L','S','F'].includes(v('bewilligung')),
   ausweisAblauf: () => !(rules.natAndere() && ['B','C','G','L','S','F'].includes(v('bewilligung'))),
   bewAblauf: () => rules.natAndere() && v('bewilligung') && v('bewilligung') !== 'noch keine',
+  bewDatum: () => rules.bewAblauf() && !$('bew_abgelaufen').checked,
+  pBewDatum: () => rules.pBewAblauf() && !$('p_bew_abgelaufen').checked,
   bewKeine: () => rules.natAndere() && v('bewilligung') === 'noch keine',
   ahv: () => v('ahv_vorhanden') === 'ja',
   ahvNein: () => v('ahv_vorhanden') === 'Nein, noch nicht',
@@ -719,6 +723,7 @@ function validateStep(i){
         else if (val && el.dataset.check === 'tel' && !telOk()) msg = 'Diese Telefonnummer stimmt nicht. Bitte prüfen Sie die Zahl.';
         else if (val && el.type === 'date' && isNaN(Date.parse(val))) msg = 'Bitte ein gültiges Datum eingeben.';
         else if (val && el.id === 'probetag_datum' && el.max && val > el.max) msg = 'Der Probetag kann nicht in der Zukunft liegen.';
+        else if (val && (el.id === 'bew_ablauf' || el.id === 'p_bew_ablauf') && val < heuteISO()) msg = 'Dieses Datum liegt in der Vergangenheit. Ist die Bewilligung abgelaufen? Dann tippen Sie unten auf «Bewilligung ist abgelaufen».';
       }
     }
     setErr(f, msg);
@@ -751,6 +756,8 @@ function offenePunkte(){
   if (v('ahv_vorhanden') === 'Nein, noch nicht') o.push('AHV-Nummer');
   if (v('konto') === 'Nein, noch nicht') o.push('Bankkonto');
   if (rules.bewKeine()) o.push('Aufenthaltsbewilligung');
+  if (rules.bewAblauf() && $('bew_abgelaufen').checked) o.push('Bewilligung abgelaufen');
+  if (rules.partner() && rules.pBewAblauf() && $('p_bew_abgelaufen').checked) o.push('Bewilligung Partner/in abgelaufen');
   if (typeof uploads !== 'undefined' && cur === steps.length - 1) o.push(...fotoOffen());
   if (rules.partner() && rules.pNatAndere() && v('p_wohnt_ch') !== 'nein' && v('p_bewilligung') === 'noch keine') o.push('Aufenthaltsbewilligung Partner/in');
   if (rules.partner() && rules.pAhv() && !v('p_ahv')) o.push('AHV-Nummer Partner/in');
@@ -767,6 +774,7 @@ function collect(L, keepEmpty){
       if (inKid && !isKid) sec.rows.push({ head: tl('Kinderzulagen', L), end: true });
       inKid = isKid;
       if (f.matches('.kid h3')) { sec.rows.push({ head: tl('Kind', L) + ' ' + f.closest('.kid').dataset.n }); return; }
+      if (f.matches('label.check') && f.querySelector('#bew_abgelaufen, #p_bew_abgelaufen')) { if (shown(f) && f.querySelector('input').checked) sec.rows.push({ k: tl('Bewilligung gültig bis', L), v: tl('abgelaufen', L), open: true }); return; }
       if (f.matches('label.check')) { if (f.querySelector('#p_gleiche_adresse') && shown(f) && $('p_gleiche_adresse').checked) sec.rows.push({ k: tl('Adresse Partner/in', L), v: tl('gleich wie Mitarbeiter/in', L) }); return; }
       const val = valueOf(f, L);
       if (!val){
@@ -1229,6 +1237,8 @@ if (window.parent !== window) {
   const scrollOrig = window.scrollTo.bind(window);
   window.scrollTo = function(a, b){ scrollOrig(a, b); const top = (a && typeof a === 'object') ? a.top : b; if (!top) parent.postMessage({ aaabOben: true }, '*'); };
 }
+function heuteISO(){ const h = new Date(); return h.getFullYear() + '-' + String(h.getMonth()+1).padStart(2,'0') + '-' + String(h.getDate()).padStart(2,'0'); }
+try { $('bew_ablauf').min = heuteISO(); $('p_bew_ablauf').min = heuteISO(); } catch(e){}
 try { const h = new Date(); $('probetag_datum').max = h.getFullYear() + '-' + String(h.getMonth()+1).padStart(2,'0') + '-' + String(h.getDate()).padStart(2,'0'); } catch(e){}
 /* ---------- Vorausfüllen aus dem Bewertungsbogen Probetag ---------- */
 /* ?vorname=..&nachname=..&email=..&tel=%2B41791234567 */
