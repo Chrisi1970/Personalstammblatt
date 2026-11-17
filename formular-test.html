@@ -370,7 +370,8 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
         <label class="opt"><input type="radio" name="p_ahv_vorhanden" value="ja" required><span>Ja</span></label>
         <label class="opt"><input type="radio" name="p_ahv_vorhanden" value="nein"><span>Nein</span></label>
       </div></fieldset>
-      <div class="f" data-if="pAhv" hidden><label for="p_ahv">AHV-Nummer Partner/in</label><input type="text" id="p_ahv" name="p_ahv" inputmode="numeric" placeholder="756.1234.5678.97" data-check="ahv"><span class="hint">Haben Sie die Nummer gerade nicht zur Hand? Dann lassen Sie das Feld leer. Sie können sie später nachreichen.</span></div>
+      <div class="f" data-if="pAhvFeld" hidden><label class="req" for="p_ahv">AHV-Nummer Partner/in</label><input type="text" id="p_ahv" name="p_ahv" required inputmode="numeric" placeholder="756.1234.5678.97" data-check="ahv"></div>
+      <label class="check" data-if="pAhv" hidden><input type="checkbox" id="p_ahv_spaeter" name="p_ahv_spaeter" value="ja"><span>Ich habe die Nummer gerade nicht zur Hand. Ich liefere sie später nach.</span></label>
       <fieldset class="f"><legend class="req">Arbeitet Ihr Partner oder Ihre Partnerin?</legend><div class="opts">
         <label class="opt"><input type="radio" name="p_arbeitet" value="ja" required><span>Ja</span></label>
         <label class="opt"><input type="radio" name="p_arbeitet" value="nein"><span>Nein</span></label>
@@ -643,6 +644,7 @@ const rules = {
   bewAblauf: () => rules.natAndere() && v('bewilligung') && !['noch keine','Meldebestätigung'].includes(v('bewilligung')),
   bewDatum: () => rules.bewAblauf() && !$('bew_abgelaufen').checked,
   pBewDatum: () => rules.pBewAblauf() && !$('p_bew_abgelaufen').checked,
+  pAhvFeld: () => rules.pAhv() && !$('p_ahv_spaeter').checked,
   bewKeine: () => rules.natAndere() && v('bewilligung') === 'noch keine',
   ahv: () => v('ahv_vorhanden') === 'ja',
   ahvNein: () => v('ahv_vorhanden') === 'Nein, noch nicht',
@@ -786,7 +788,7 @@ function offenePunkte(){
   if (rules.partner() && rules.pBewAblauf() && $('p_bew_abgelaufen').checked) o.push('Bewilligung Partner/in abgelaufen');
   if (typeof uploads !== 'undefined' && cur === steps.length - 1) o.push(...fotoOffen());
   if (rules.partner() && rules.pNatAndere() && v('p_wohnt_ch') !== 'nein' && v('p_bewilligung') === 'noch keine') o.push('Aufenthaltsbewilligung Partner/in');
-  if (rules.partner() && rules.pAhv() && !v('p_ahv')) o.push('AHV-Nummer Partner/in');
+  if (rules.partner() && rules.pAhv() && $('p_ahv_spaeter').checked) o.push('AHV-Nummer Partner/in');
   return o;
 }
 function collect(L, keepEmpty){
@@ -803,6 +805,7 @@ function collect(L, keepEmpty){
       if (f.matches('.job h3')) { sec.rows.push({ head: tl('Arbeitsstelle', L) + ' ' + f.closest('.job').dataset.n }); return; }
       if (f.matches('.kid h3')) { sec.rows.push({ head: tl('Kind', L) + ' ' + f.closest('.kid').dataset.n }); return; }
       if (f.matches('label.check') && f.querySelector('#bew_abgelaufen, #p_bew_abgelaufen')) { if (shown(f) && f.querySelector('input').checked) sec.rows.push({ k: tl('Bewilligung gültig bis', L), v: tl('abgelaufen', L), open: true }); return; }
+      if (f.matches('label.check') && f.querySelector('#p_ahv_spaeter')) { if (shown(f) && f.querySelector('input').checked) sec.rows.push({ k: tl('AHV-Nummer Partner/in', L), v: tl('wird nachgereicht', L), open: true }); return; }
       if (f.matches('label.check')) { if (f.querySelector('#p_gleiche_adresse') && shown(f) && $('p_gleiche_adresse').checked) sec.rows.push({ k: tl('Adresse Partner/in', L), v: tl('gleich wie Mitarbeiter/in', L) }); return; }
       const val = valueOf(f, L);
       if (!val){
