@@ -383,7 +383,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
       </div></fieldset>
       <div class="f" data-if="pArbeitet" hidden><label class="req" for="p_firma">Arbeitgeber</label><input type="text" id="p_firma" name="p_firma" required></div>
       <div class="f" data-if="pArbeitet" hidden><label class="req" for="p_firma_ort">PLZ und Ort der Firma</label><input type="text" id="p_firma_ort" name="p_firma_ort" required></div>
-      <p class="hint" data-if="pDokId" hidden>Auf der letzten Seite laden Sie eine Kopie der ID oder des Passes Ihres Partners oder Ihrer Partnerin hoch. Diese Kopie ist Pflicht.</p>
+      <p class="hint" data-if="pDokId" hidden>Auf der letzten Seite laden Sie eine Kopie der ID oder des Passes Ihres Partners oder Ihrer Partnerin hoch.</p>
     </div>
   </section>
 
@@ -524,7 +524,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
       <h2 class="uph">Fotos Ihrer Dokumente</h2>
       <p class="hint">Fotografieren Sie die Dokumente mit dem Handy oder wählen Sie ein vorhandenes Bild aus. Achten Sie darauf, dass alles gut lesbar ist.</p>
       <div id="upSlots"></div>
-      <p class="hint plzwarn" id="pflichtErr" hidden>Bitte laden Sie bei jeder Kopie ein Foto hoch oder kreuzen Sie «Foto wird nachgeliefert» an. Kopien mit «Pflicht» brauchen immer ein Foto.</p>
+      <p class="hint plzwarn" id="pflichtErr" hidden>Bitte laden Sie bei jeder Kopie ein Foto hoch oder kreuzen Sie «Foto wird nachgeliefert» an.</p>
     </div>
     <div class="f"><label class="check"><input type="checkbox" id="ok_wahr" name="ok_wahr" required><span class="req">Meine Angaben sind vollständig und wahr.</span></label></div>
     <div class="f"><label class="check"><input type="checkbox" id="ok_meldung" name="ok_meldung" required><span class="req">Änderungen melde ich schriftlich an mitarbeiter@aaab.ch.</span></label></div>
@@ -929,13 +929,13 @@ const SLOTS = [
   { id: 'bewilligung', label: 'Aufenthaltsbewilligung (wenn vorhanden)', hint: 'Vorder- und Rückseite.' },
   { id: 'bank', label: 'Bank- oder Postkarte (Vorder- und Rückseite)', hint: '' },
   { id: 'ahv', label: 'AHV-Ausweis oder Krankenkassenkarte', hint: '' },
-  { id: 'pid', label: 'ID oder Pass Partner/in', hint: 'Pflicht. Bei der ID-Karte Vorder- und Rückseite.', show: () => rules.pDokId() }
+  { id: 'pid', label: 'ID oder Pass Partner/in', hint: 'Bei der ID-Karte Vorder- und Rückseite.', show: () => rules.pDokId() }
 ];
 const slotAktiv = sl => !sl.show || sl.show();
 function pflichtFehlt(){ return SLOTS.filter(sl => sl.show && sl.show() && !uploads[sl.id].length); }
 const uploads = {}; SLOTS.forEach(sl => uploads[sl.id] = []);
 const nachliefern = {};
-function fotoFehlt(){ return SLOTS.filter(sl => !sl.show && !uploads[sl.id].length && !nachliefern[sl.id]); }
+function fotoFehlt(){ return SLOTS.filter(sl => slotAktiv(sl) && !uploads[sl.id].length && !nachliefern[sl.id]); }
 async function verkleinern(file){
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return { blob: file, type: file.type || 'application/octet-stream' };
   try {
@@ -976,7 +976,7 @@ function renderSlots(){
       lab.append(inp, sp); row.appendChild(lab);
     }
     d.appendChild(row);
-    if (!sl.show && !uploads[sl.id].length){
+    if (!uploads[sl.id].length){
       const cl = document.createElement('label'); cl.className = 'check';
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'spaeter_' + sl.id; cb.checked = !!nachliefern[sl.id];
       cb.onchange = () => { nachliefern[sl.id] = cb.checked; $('pflichtErr').hidden = true; renderSummary(); };
@@ -1065,7 +1065,7 @@ let gesendet = false;
 $('sendBtn').onclick = async () => {
   if (gesendet) return;
   if (!TESTMODUS && !validateStep(cur)) return;
-  if (!TESTMODUS && (pflichtFehlt().length || fotoFehlt().length)){ $('pflichtErr').hidden = false; $('upSlots').scrollIntoView({behavior:'smooth', block:'center'}); return; }
+  if (!TESTMODUS && fotoFehlt().length){ $('pflichtErr').hidden = false; $('upSlots').scrollIntoView({behavior:'smooth', block:'center'}); return; }
   $('pflichtErr').hidden = true;
   const btn = $('sendBtn');
   $('sendDone').hidden = true; $('sendErr').hidden = true;
