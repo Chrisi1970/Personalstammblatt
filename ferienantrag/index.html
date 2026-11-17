@@ -488,7 +488,7 @@ $('bSend').onclick = async () => {
 
 
 /* ---------- Hotels zum Antippen (gleiche Liste wie im Bewertungsbogen Probetag) ---------- */
-const HOTELS = ['Dorint Airport Hotel Zürich','Hotel St. Gotthard','AAAB Wäscherei','GLANDON Apartments «Zum Schiff»','Parkhotel Bad Zurzach','HYPERION Hotel Basel','Hotel Euler Basel','Dorint An der Messe Basel','Schloss Rapperswil','Essential by Dorint Interlaken','Hapimag Interlaken'];
+const HOTELS = ['Dorint Airport Hotel Zürich','Hotel St. Gotthard','AAAB Wäscherei','GLANDON Apartments «Zum Schiff»','Parkhotel Bad Zurzach','HYPERION Hotel Basel','Hotel Euler Basel','Dorint Hotel an der Messe','Schloss Rapperswil','Essential by Dorint Interlaken','Hapimag Interlaken'];
 function hotelKnoepfe(){
   const box = $('hwahl'); box.innerHTML = '';
   HOTELS.forEach(n => { const b = document.createElement('button'); b.type = 'button'; b.textContent = n; if (v('hotel') === n) b.className = 'on';
