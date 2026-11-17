@@ -257,6 +257,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
         <label class="opt"><input type="radio" name="arbeitsort" value="Basel"><span class="notr">Basel</span></label>
         <label class="opt"><input type="radio" name="arbeitsort" value="Interlaken"><span class="notr">Interlaken</span></label>
       </div></fieldset>
+    <div class="f"><label class="req" for="probetag_datum">Datum Probetag</label><input type="date" id="probetag_datum" name="probetag_datum" required></div>
   </section>
 
   <!-- 2 Herkunft -->
@@ -556,7 +557,7 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
 
 <script>
 /* Testmodus: true = keine Prüfung der Eingaben. Für den echten Einsatz auf false setzen. */
-const TESTMODUS = true;
+const TESTMODUS = false;
 /* Testphase: Einsendungen landen in der Supabase-Tabelle «einsendungen» (Projekt AAAB Personalblatt Test, Zürich) */
 const SUPABASE_URL = 'https://ycpqizlhgnxslsifcupe.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_CQ0kpW9XPPm3vXc0suUzdQ_8v7hQh0J';
@@ -715,6 +716,7 @@ function validateStep(i){
         else if (val && el.dataset.check === 'iban' && !ibanOk(val)) msg = 'Diese IBAN stimmt nicht. Bitte Ziffer für Ziffer prüfen.';
         else if (val && el.dataset.check === 'tel' && !telOk()) msg = 'Diese Telefonnummer stimmt nicht. Bitte prüfen Sie die Zahl.';
         else if (val && el.type === 'date' && isNaN(Date.parse(val))) msg = 'Bitte ein gültiges Datum eingeben.';
+        else if (val && el.id === 'probetag_datum' && el.max && val > el.max) msg = 'Der Probetag kann nicht in der Zukunft liegen.';
       }
     }
     setErr(f, msg);
@@ -1224,6 +1226,7 @@ if (window.parent !== window) {
   const scrollOrig = window.scrollTo.bind(window);
   window.scrollTo = function(a, b){ scrollOrig(a, b); const top = (a && typeof a === 'object') ? a.top : b; if (!top) parent.postMessage({ aaabOben: true }, '*'); };
 }
+try { const h = new Date(); $('probetag_datum').max = h.getFullYear() + '-' + String(h.getMonth()+1).padStart(2,'0') + '-' + String(h.getDate()).padStart(2,'0'); } catch(e){}
 /* ---------- Vorausfüllen aus dem Bewertungsbogen Probetag ---------- */
 /* ?vorname=..&nachname=..&email=..&tel=%2B41791234567 */
 try {
