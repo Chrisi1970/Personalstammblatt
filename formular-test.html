@@ -1104,6 +1104,38 @@ function plzVorschlag(){
 }
 $('plz').addEventListener('input', plzVorschlag);
 $('ort').addEventListener('input', () => { $('ort').dataset.auto = '0'; });
+/* ---------- Grenzorte im Ausland: Ort -> PLZ ---------- */
+const GRENZORTE = [
+  [['mulhouse','muhlhausen','mulhausen','muelhausen'], 'Mulhouse', ['68100','68200']],
+  [['saint louis','st louis'], 'Saint-Louis', ['68300']],
+  [['huningue','huningen','hueningen'], 'Huningue', ['68330']],
+  [['lorrach','loerrach'], 'Lörrach', ['79539','79540','79541']],
+  [['weil am rhein'], 'Weil am Rhein', ['79576']],
+  [['konstanz','constance'], 'Konstanz', ['78462','78464','78465','78467']],
+  [['como'], 'Como', ['22100']],
+  [['varese'], 'Varese', ['21100']]
+];
+const ortNorm = x => x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[.\-]/g,' ').replace(/\s+/g,' ').trim();
+function grenzortVorschlag(){
+  const plz = $('plz').value.replace(/\D/g,'');
+  if (plz.length === 4) return;
+  const n = ortNorm($('ort').value), g = GRENZORTE.find(e => e[0].includes(n));
+  const box = $('plzBox'), wrap = $('plzOrte');
+  if ($('plz').dataset.auto === '1' && !(g && g[2].includes(plz))){ $('plz').value = ''; $('plz').dataset.auto = '0'; }
+  if (!g){ if (box.dataset.grenz === '1'){ wrap.innerHTML = ''; box.hidden = true; box.dataset.grenz = ''; $('plzHint').textContent = t('Bitte Ort auswählen'); } return; }
+  if (g[2].length === 1 && !$('plz').value){ $('plz').value = g[2][0]; $('plz').dataset.auto = '1'; }
+  $('plzHint').textContent = t('Bitte PLZ auswählen');
+  wrap.innerHTML = ''; box.dataset.grenz = '1';
+  g[2].forEach(z => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'plzort'; b.textContent = z + ' ' + g[1];
+    b.setAttribute('aria-pressed', $('plz').value === z ? 'true' : 'false');
+    b.onclick = () => { $('plz').value = z; $('plz').dataset.auto = '1'; const f = $('plz').closest('.f'); if (f.classList.contains('bad')) setErr(f, ''); grenzortVorschlag(); };
+    wrap.appendChild(b);
+  });
+  box.hidden = false;
+}
+$('ort').addEventListener('input', grenzortVorschlag);
+$('plz').addEventListener('input', () => { $('plz').dataset.auto = '0'; if ($('plz').value.replace(/\D/g,'').length !== 4) grenzortVorschlag(); else $('plzHint').textContent = t('Bitte Ort auswählen'); });
 let dlApi;
 if (window.claude && window.claude.use) window.claude.use('downloads').then(d => { dlApi = d; }).catch(() => { dlApi = null; });
 $('pdfBtn').onclick = async () => {
