@@ -288,6 +288,13 @@ footer{color:var(--muted);font-size:.8rem;text-align:center;margin-top:22px}
       <div class="f" data-if="bewG" hidden><label for="it_steuer">Italienische Steuernummer (Codice fiscale)</label><input type="text" id="it_steuer" name="it_steuer" autocapitalize="characters"><span class="hint">Für Grenzgängerinnen und Grenzgänger aus Italien.</span></div>
     </div>
     <div class="f" data-if="passAblauf" hidden><label class="req" for="pass_ablauf">Ablaufdatum Pass</label><input type="date" id="pass_ablauf" name="pass_ablauf" required><span class="hint">Bitte laden Sie am Schluss ein Foto davon hoch.</span></div>
+    <div class="sub" data-if="eltern" hidden>
+      <h2 style="font-size:1.05rem;margin:4px 0 0">Angaben zu den Eltern</h2>
+      <div class="f"><label class="req" for="vater_name">Vorname und Name des Vaters</label><input type="text" id="vater_name" name="vater_name" required></div>
+      <div class="f"><label class="req" for="vater_geburt">Geburtsdatum des Vaters</label><input type="date" id="vater_geburt" name="vater_geburt" required></div>
+      <div class="f"><label class="req" for="mutter_name">Vorname und Name der Mutter</label><input type="text" id="mutter_name" name="mutter_name" required></div>
+      <div class="f"><label class="req" for="mutter_geburt">Geburtsdatum der Mutter</label><input type="date" id="mutter_geburt" name="mutter_geburt" required></div>
+    </div>
     <fieldset class="f"><legend class="req">Haben Sie eine AHV-Nummer?</legend><div class="opts">
       <label class="opt"><input type="radio" name="ahv_vorhanden" value="ja" required><span>Ja</span></label>
       <label class="opt"><input type="radio" name="ahv_vorhanden" value="Nein, noch nicht"><span>Nein, noch nicht</span></label>
@@ -642,6 +649,7 @@ const rules = {
   quellensteuer: () => !!v('nat_land') && v('nat_land') !== 'CH' && v('bewilligung') !== 'C',
   natAndere: () => !!v('nat_land') && v('nat_land') !== 'CH',
   bewG: () => v('nat_land') === 'IT',
+  eltern: () => rules.natAndere() && v('bewilligung') === 'G',
   passAblauf: () => rules.natAndere() && ['G','L','S','F'].includes(v('bewilligung')),
   ausweisAblauf: () => !(rules.natAndere() && ['B','C','G','L','S','F'].includes(v('bewilligung'))),
   bewAblauf: () => rules.natAndere() && v('bewilligung') && !['noch keine','Meldebestätigung'].includes(v('bewilligung')),
