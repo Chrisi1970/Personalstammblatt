@@ -2870,7 +2870,7 @@ async function ansageSpeichern(){
     const d = ansageDaten(); const h = JSON.stringify(d);
     let a = {}; try { a = JSON.parse(localStorage.getItem(AKEY) || '{}'); } catch(e){}
     if (a.h === h && a.id) return a;
-    const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/ansage_speichern', { method:'POST',
+    const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/ansage_speichern', { method:'POST', keepalive:true,
       headers:{ 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type':'application/json' },
       body: JSON.stringify({ p_id: a.id || null, p_code: a.code || null, p: d }) });
     if (!res.ok) return null;
@@ -2989,9 +2989,11 @@ function bwDatumOk(){
   $('bwMsg').hidden = false; $('datum').closest('.f').classList.add('bad'); $('datum').scrollIntoView({behavior:'smooth',block:'center'});
   return false;
 }
-$('bwMail').onclick = ()=>{ if (!ansageBereit() || !bwDatumOk()) return; $('bwMsg').hidden = true; ansageSpeichern();
+function gespeichertMelden(el){ ansageSpeichern().then(a => { $(el).textContent = a ? '✓ Probetag in der Liste gespeichert.' : 'Speichern in der Liste hat nicht geklappt. Bitte Internetverbindung prüfen und nochmals antippen.'; $(el).hidden = false; }); }
+$('bwMail').onclick = ()=>{ if (!ansageBereit() || !bwDatumOk()) return; $('bwMsg').hidden = true; gespeichertMelden('bwMsg');
   location.href = 'mailto:' + encodeURIComponent(v('email')).replace('%40','@') + '?subject=' + encodeURIComponent(bewerberinBetreff()) + '&body=' + encodeURIComponent(bewerberinText()); };
 $('bwCopy').onclick = async ()=>{ if (!ansageBereit() || !bwDatumOk()) return;
+  ansageSpeichern();
   try { await kopiere(bewerberinText()); $('bwMsg').textContent = 'Text kopiert. Fügen Sie ihn in Ihr Mail ein.'; }
   catch(e){ $('bwMsg').textContent = 'Kopieren hat nicht geklappt.'; }
   $('bwMsg').hidden = false; };
